@@ -4,11 +4,15 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 from typing import Annotated
+from user_routes import router as UserRouter
 import bcrypt
 import database_init as dbi
 
 
+
 app = FastAPI
+
+app.include_router(UserRouter, tags=["Users"], prefix="/authenticated")
 
 client = dbi.init_database()
 

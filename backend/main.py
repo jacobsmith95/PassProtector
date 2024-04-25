@@ -10,14 +10,12 @@ import database_init as dbi
 
 app = FastAPI
 
-templates = Jinja2Templates(directory="../ui/build")
-app.mount('/static', StaticFiles(directory="../ui/build/static"), 'static')
-
+client = dbi.init_database()
 
 @app.post("/token")
 async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
 
-    collection = dbi.init_database()
+    collection = client.get_database()
 
     token = getToken(form_data.password, form_data.username)
 

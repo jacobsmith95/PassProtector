@@ -83,6 +83,8 @@ function decryptVault(key, ciphertext) {
     return JSON.parse(dec.toString(CryptoJS.enc.Utf8))
 }
 
+module.exports = {generateMasterKey, encryptVault, decryptVault};
+
 
 
 
@@ -102,6 +104,8 @@ async function main() {
     // Using our key generation, we can generate the master key
     const masterData = await generateMasterKey("RandomGuysEmail1234@gmail.com", "BigLongPassword");
 
+    console.log(masterData)
+
     // We can use the master key to encrypt our data
     const ciphertext = encryptVault(masterData.masterKey, vault);
     console.log("ciphertext = ", ciphertext)
@@ -116,7 +120,7 @@ async function main() {
         iv: 'd955d00b481684d86b230b0b183dcac2027f73258e7f4ef6d70ef7ac19cc23a8'
     }
 
-    // console.log(decryptVault(masterData.masterKey, receivedData))
+    console.log(decryptVault(masterData.masterKey, receivedData))
 }
 
 if (require.main === module) {

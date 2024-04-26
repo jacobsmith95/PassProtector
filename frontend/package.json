@@ -10,6 +10,7 @@
     "argon2": "^0.40.1",
     "authenticator": "^1.1.5",
     "bootstrap": "^5.3.3",
+    "buffer": "^6.0.3",
     "crypto-js": "^4.2.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

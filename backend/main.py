@@ -1,15 +1,20 @@
 from fastapi import Depends, FastAPI, HTTPException, status, Body
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.encoders import jsonable_encoder
+from fastapi.middleware.cors import CORSMiddleware
 from typing import Annotated
 from user_routes import router as UserRouter
 from models import User
 import bcrypt
 import database_init as dbi
+import uvicorn
+import os
 
+app = FastAPI()
 
-
-app = FastAPI
+origins = [
+    "https://frontend-ngnhr6tt3a-ul.a.run.app"
+]
 
 app.include_router(UserRouter, tags=["Users"], prefix="/authenticated")
 
@@ -46,3 +51,15 @@ async def create_user(user: User = Body(...)):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"user not created")
 
     return created_user
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["GET","POST", "PUT", "DELETE"],
+    allow_headers=["*"],
+)
+
+if __name__ == "__main__":
+    uvicorn.run(app, host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))
+    

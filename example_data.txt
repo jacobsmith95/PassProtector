@@ -1,0 +1,31 @@
+var vault = [
+    {
+        ID: 1,
+        account: "Oregon State",
+        username: "bohrerja",
+        password: "not my actual password",
+        notes: ""
+    },
+    {
+        ID: 2,
+        account: "Email",
+        username: "jmoney420@gmail.com",
+        password: "password1",
+        notes: "Security question answer is: Ratatouille"
+    },
+    {
+        ID: 3,
+        account: "Lego",
+        username: "jmoney420@gmail.com",
+        password: "#v*$dw5x@nM&7Y3^neoU",
+        notes: ""
+    },
+]
+
+Password manager login information:
+Username: RandomUser@gmail.com
+Password: SecurePassword1
+
+Using this login information and the above vault, the frontend will receive the following from the backend when login is authenticated.
+"{"ciphertext":"EpqY/jWESa2xUouYTKvQgquDaBqW5KaAUSW24HUF1fZkqaBJi/KzjfI+JiirSJV+SI5kWb+/CIDufu/QO/NqGjoQs0Nb+E74R7D7S8jEyvazORbroPcTQ2K64D2GdX6LJYyoeU4q1MWU/yXQsfYfZmShGwpDddDlPqPtme/U8VKleuJ8cV8BOHAtTg/OSlF9vOs/h4E3gN+MJi8R8M0OLUO7MrWOrrf9I31b/L+YEhHym7RlCW/8xM/Q6RL/n6Xtp7t+OVSjN4JOVo7DzVanQ+xSroEkjvGKCileROzKpzYlCkZYlcxER1+1hmQYIepofebGAcGuP9m6fY95EaEMVt+W7ecieqx+9AR5F77/g23eVeZ3vr+Ys+MOBZ/odlYvPUE9ABxlo8QsNqMQ2U42sEAUZSnimf0hrKhvF0+VtYIlGrC73N4QSi/XLq7B8e57xfSdlibj9vUbOkPFFOgjzg==","iv":"e8340495aba9fa393798c75ec09d1f57bd2706ec5b83317dbfe6436d623eb860"}"
+

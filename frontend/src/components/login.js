@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthObject } from "../auth/authWrapper";
+import { generateMasterKey } from "../frontend_encryption";
+
 
 export const Login = () => {
 
@@ -10,7 +12,12 @@ export const Login = () => {
     const [errorMessage, setErrorMessage] = useState(null)
 
     const loginHandler = async (email, password) => {
-        try {           
+
+        const masterValues = generateMasterKey(email, password)
+        console.log(masterValues)
+
+        try {         
+            // login will want to be sending the masterHash instead of the password  
             await login(email, password)
             navigate("/vault")
         } catch (error) {

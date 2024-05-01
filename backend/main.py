@@ -25,19 +25,12 @@ collection = db["Users"]
 @app.post("/login/{hash}/", response_description="got user", status_code=status.HTTP_200_OK, response_model=User)
 async def login(hash: str, response: Response):
 
-    db = client.get_database()
-    collection = db["Users"]
-
     if hash not in collection:
         raise HTTPException(status_code=400, detail="Incorrect username or password")
-
-    response.status_code = status.HTTP_204_NO_CONTENT
-    return response
-
-
-
-def getToken(password, username):
-    return bcrypt.hashpw(password, username)
+    
+    else:
+        response.status_code = status.HTTP_204_NO_CONTENT
+        return response
 
 
 @app.post("/create-account/", response_description="create a new user", status_code=status.HTTP_201_CREATED, response_model=User)

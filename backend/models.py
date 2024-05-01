@@ -15,6 +15,7 @@ class User(BaseModel):
     id: str = Field(default_factory=uuid.uuid1, alias="_id")
     email: str = Field(...)
     hash: str = Field(...)
+    token: str = Field(...)
     vault: str | None = Field(...)
 
     class Config:
@@ -31,4 +32,5 @@ class UserUpdate(BaseModel):
     """
     email: Optional[str]
     hash: Optional[str]
+    token: Optional[str]
     vault: Optional[str]

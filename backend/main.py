@@ -1,4 +1,4 @@
-from fastapi import Depends, FastAPI, HTTPException, status, Body
+from fastapi import Depends, FastAPI, HTTPException, status, Response, Body
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
@@ -22,24 +22,25 @@ client = dbi.init_database()
 db = client["user_database"]
 collection = db["Users"]
 
-@app.post("/token")
-async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
+@app.post("/login/{hash}/", response_description="got user", status_code=status.HTTP_200_OK, response_model=User)
+async def login(hash: str, response: Response):
 
-    collection = client.get_database()
+    db = client.get_database()
+    collection = db["Users"]
 
-    token = getToken(form_data.password, form_data.username)
-
-    if token not in collection:
+    if hash not in collection:
         raise HTTPException(status_code=400, detail="Incorrect username or password")
 
-    return {"access_token": token, "token_type": "bearer"}
+    response.status_code = status.HTTP_204_NO_CONTENT
+    return response
+
 
 
 def getToken(password, username):
     return bcrypt.hashpw(password, username)
 
 
-@app.post("/create", response_description="create a new user", status_code=status.HTTP_201_CREATED, response_model=User)
+@app.post("/create-account/", response_description="create a new user", status_code=status.HTTP_201_CREATED, response_model=User)
 async def create_user(user: User = Body(...)):
     """
     Creates a new user in the Users collection and returns the created user's entry as defined by the User model

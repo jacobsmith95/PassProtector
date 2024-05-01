@@ -1,22 +1,26 @@
 from fastapi import APIRouter, Body, Response, HTTPException, status
 from fastapi.encoders import jsonable_encoder
-import database_init as dbi
-from models import User, UserUpdate
+import backend.database_init as dbi
+from backend.models import User, UserUpdate
 
 
-router = APIRouter
+router = APIRouter()
 
 client = dbi.init_database()
-db = client["user_database"]
-collection = db["Users"]
+
+async def get_collection():
+    db = await client["user_database"]
+    collection = await db["Users"]
+    return collection
 
 #I am not sure we will need this route
-@router.get("/{hash}/", response_description="got user", status_code=status.HTTP_200_OK, response_model=User)
+@router.get(path="/{hash}/", response_description="got user", status_code=status.HTTP_200_OK, response_model=User)
 async def get_user(hash: str):
     """
     Returns the Users entry for the given hash; 
     We use hash here because it will be unique for each user and each user account and we will have access to it, unlike the user ID
     """
+    collection = await get_collection()
     user = await collection.find_one({"hash": hash})
     if user is not None:
         return user
@@ -24,12 +28,13 @@ async def get_user(hash: str):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"{hash} not found")
 
 
-@router.put("/update_{id}/", response_description="updated user", status_code=status.HTTP_200_OK, response_model=UserUpdate)
+@router.put(path="/update_{id}/", response_description="updated user", status_code=status.HTTP_200_OK, response_model=UserUpdate)
 async def update_user(id: str, user_update: User = Body(...)):
     """
     Updates the information in the Users entry to what was sent in the request;
     Returns the new user entry
     """
+    collection = await get_collection(client)
     user = await collection.find_one({"_id": id})
     if user is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"id {id} not found")
@@ -41,12 +46,13 @@ async def update_user(id: str, user_update: User = Body(...)):
     return updated_user
 
 
-@router.delete("/delete_{id}/", response_description="deleted user")
+@router.delete(path="/delete_{id}/", response_description="deleted user")
 async def delete_user(id: str, response: Response):
     """
     Deletes the Users entry for the given hash;
     Returns a no-content 204 status code
     """
+    collection = await get_collection(client)
     user = await collection.find_one({"_id": id})
     if user is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"id {id} not found")

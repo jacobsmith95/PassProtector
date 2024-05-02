@@ -1,10 +1,8 @@
 from fastapi import FastAPI, HTTPException, status, Response, Body
 from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
-from models import UserSchema, UserUpdate, HashSchema, LoginResponseSchema, LoginErrorSchema
+from models import UserSchema, UserUpdate, HashSchema, LoginResponseSchema, CreateResponseSchema, UpdateResponseSchema, VaultResponseSchema, DeleteResponseSchema, LoginErrorSchema
 from database import add_user, find_user, auth_user, find_vault, update_user, update_vault, delete_user
-import uvicorn
-import os
 
 app = FastAPI()
 
@@ -22,7 +20,8 @@ async def login(hash: HashSchema):
     if result == "success":
         vault = await find_vault(hash)
         return LoginResponseSchema(vault)
-    
+    else:
+        return LoginErrorSchema("Login Failed")
 
 
 #@app.post(path="/account-create/", response_description="create a new user", status_code=status.HTTP_201_CREATED, response_model=User)

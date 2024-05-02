@@ -50,7 +50,7 @@ def LoginResponseSchema(vault):
     Defines the dictionary reponse sent back as the response body for routes:
 
     login_result    - whether the operation resulted in success or not
-    login_body      - the information returned to the request
+    login_body      - None
     encrypted_vault - the user's vault as an encrypted string
     """
     login_response = {
@@ -62,31 +62,119 @@ def LoginResponseSchema(vault):
     return login_response
 
 
-def CreateResponseSchema(status, message, data, vault):
+def CreateResponseSchema():
     """
     Defines the dictionary reponse sent back as the response body for routes:
 
-    login_result    - whether the operation resulted in success or not
-    login_body      - the information returned to the request
-    encrypted_vault - the user's vault as an encrypted string
+    account_create_result - whether the operation resulted in success or not
     """
     create_response = {
-        "login_result"    : message,
-        "login_body"      : [data],
-        "encrypted_vault" : vault
+        "account_create_result" : "success"
     }
 
     return create_response
 
 
-def LoginErrorSchema(result):
+def UpdateResponseSchema():
+    """
+    Defines the dictionary reponse sent back as the response body for routes:
+
+    account_update_result - whether the operation resulted in success or not
+    """
+    update_response = {
+        "account_update_result" : "success"
+    }
+
+    return update_response
+
+
+def VaultResponseSchema():
+    """
+    Defines the dictionary reponse sent back as the response body for routes:
+
+    vault_update_result - whether the operation resulted in success or not
+    """
+    vault_response = {
+        "vault_update_result" : "success"
+    }
+
+    return vault_response
+
+
+def DeleteResponseSchema():
+    """
+    Defines the dictionary reponse sent back as the response body for routes:
+
+    account_delete_result - whether the operation resulted in success or not
+    """
+    delete_response = {
+        "account_delete_result" : "success"
+    }
+
+    return delete_response
+
+
+def LoginErrorSchema(message):
     """
     Defines the dictionary error response sent back as the error body for routes:
 
     login_result - the error that occurred
     """
-    error = {
-        "login_result": result
+    login_error = {
+        "login_result" : message
     }
 
-    return error
+    return login_error
+
+
+def CreateErrorSchema(message):
+    """
+    Defines the dictionary error response sent back as the error body for routes:
+
+    account_create_result - the error that occurred
+    """
+    create_error = {
+        "account_create_result" : message
+    }
+
+    return create_error
+
+
+def UpdateErrorSchema(message):
+    """
+    Defines the dictionary error response sent back as the error body for routes:
+
+    account_update_result - the error that occurred
+    """
+    update_error = {
+        "account_update_result" : message
+    }
+
+    return update_error
+
+
+def VaultErrorSchema(message):
+    """
+    Defines the dictionary error response sent back as the error body for routes:
+
+    vault_update_result - the error that occurred
+    """
+    vault_error = {
+        "vault_update_result" : message
+    }
+
+    return vault_error
+
+
+def DeleteErrorSchema(message):
+    """
+    Defines the dictionary error response sent back as the error body for routes:
+
+    account_delete_result - the error that occurred
+    """
+    delete_error = {
+        "account_delete_result" : message
+    }
+
+    return delete_error
+

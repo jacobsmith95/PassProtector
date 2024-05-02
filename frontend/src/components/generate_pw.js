@@ -1,5 +1,13 @@
-import React from "react";
-
 export const GeneratePW = () => {
-    return <h1>Generate a random password</h1>;
+
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!#$%&'()*+,-./:;<=>?@[]^_`{|}~";
+        let pw = "";
+        const randomArray = new Uint8Array(30);
+        crypto.getRandomValues(randomArray);
+
+        randomArray.forEach((number) => {
+            pw += chars[number % chars.length];
+        });
+
+        return pw;
 }

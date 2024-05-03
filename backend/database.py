@@ -12,7 +12,7 @@ collection = database["Users"]
 
 def user_helper(user) -> dict:
     """
-    takes a user returned from the database and gives a dict object
+    takes a user returned from the database and returns a dict object
     """
     dict = {
     "id"    : str(user["_id"]),

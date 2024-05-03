@@ -25,8 +25,8 @@ async def login(hash: HashSchema = Body(...)):
         return LoginErrorSchema("Login Failed")
 
 
-#@app.post(path="/account-create/", response_description="create a new user", status_code=status.HTTP_201_CREATED, response_model=User)
-#async def create_user(user: User = Body(...)):
+#@app.post(path="/account-create/", status_code=status.HTTP_201_CREATED)
+#async def create_user(user: UserSchema = Body(...)):
 #    """
 #    
 #    """

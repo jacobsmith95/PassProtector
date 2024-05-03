@@ -22,7 +22,7 @@ async def login(hash: HashSchema = Body(...)):
         vault = await find_vault(master_hash["hash"])
         return LoginResponseSchema(vault)
     else:
-        return result #LoginErrorSchema("Login Failed")
+        return LoginErrorSchema("Login Failed")
 
 
 #@app.post(path="/account-create/", response_description="create a new user", status_code=status.HTTP_201_CREATED, response_model=User)

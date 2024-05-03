@@ -1,4 +1,5 @@
 import motor.motor_asyncio
+import json
 
 
 db_details = "mongodb+srv://<username>:<password>@scmcluster.0yumvz4.mongodb.net/?retryWrites=true&w=majority&appName=SCMCluster"
@@ -66,7 +67,7 @@ async def find_vault(hash: str):
         return "failure"
     else:
         user_dict = user_helper(user)
-        vault = user_dict["vault"]
+        vault = json.loads(user_dict["vault"])
         return vault
 
 

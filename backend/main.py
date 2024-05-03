@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException, status, Response, Body
 from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
-from models import UserSchema, UserUpdate, HashSchema, LoginResponseSchema, CreateResponseSchema, UpdateResponseSchema, VaultResponseSchema, DeleteResponseSchema, LoginErrorSchema
+from models import UserSchema, UserUpdate, HashSchema, LoginResponseSchema, CreateResponseSchema, UpdateResponseSchema, VaultResponseSchema, DeleteResponseSchema, LoginErrorSchema, CreateErrorSchema, UpdateErrorSchema, VaultErrorSchema, DeleteErrorSchema
 from database import add_user, find_user, auth_user, find_vault, update_user, update_vault, delete_user
 
 app = FastAPI()
@@ -12,16 +12,17 @@ origins = [
 
 
 @app.post(path="/login/", status_code=status.HTTP_200_OK)
-async def login(hash: HashSchema):
+async def login(hash: HashSchema = Body(...)):
     """
     
     """
-    result = await auth_user(hash)
+    master_hash = jsonable_encoder(hash)
+    result = await auth_user(master_hash["hash"])
     if result == "success":
-        vault = await find_vault(hash)
+        vault = await find_vault(master_hash["hash"])
         return LoginResponseSchema(vault)
     else:
-        return LoginErrorSchema("Login Failed")
+        return result #LoginErrorSchema("Login Failed")
 
 
 #@app.post(path="/account-create/", response_description="create a new user", status_code=status.HTTP_201_CREATED, response_model=User)

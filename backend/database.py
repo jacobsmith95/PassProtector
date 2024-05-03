@@ -4,7 +4,7 @@ import motor.motor_asyncio
 db_details = "mongodb+srv://<username>:<password>@scmcluster.0yumvz4.mongodb.net/?retryWrites=true&w=majority&appName=SCMCluster"
 
 client = motor.motor_asyncio.AsyncIOMotorClient(db_details)
-database = client["user_database"]
+database = client["UserDatabase"]
 collection = database["Users"]
 
 
@@ -52,10 +52,9 @@ async def auth_user(hash: str):
     
     """
     user = await collection.find_one({"hash": hash})
-    if user is None:
-        return "failure"
-    else:
+    if user is not None:
         return "success"
+    return "failure"
     
 
 async def find_vault(hash: str):

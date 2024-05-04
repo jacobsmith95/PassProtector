@@ -3,6 +3,8 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
 from models import UserSchema, UserUpdate, HashSchema, LoginResponseSchema, CreateResponseSchema, UpdateResponseSchema, VaultResponseSchema, DeleteResponseSchema, LoginErrorSchema, CreateErrorSchema, UpdateErrorSchema, VaultErrorSchema, DeleteErrorSchema
 from database import add_user, find_user, auth_user, find_vault, update_user, update_vault, delete_user
+import uvicorn
+import os
 
 app = FastAPI()
 
@@ -43,4 +45,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-    
+
+if __name__ == "__main__":
+    uvicorn.run(app, host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))

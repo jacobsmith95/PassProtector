@@ -3,6 +3,8 @@ from typing import Optional
 import uuid
 
 
+# Payload Schemas
+
 class UserSchema(BaseModel):
     """
     The model for a user in the mongodb Users collection:
@@ -13,7 +15,6 @@ class UserSchema(BaseModel):
     token - a secret used for Google TOTP MFA
     vault - user's encrypted data and IV saved as a concatenated string, can be None
     """
-    id: str = Field(default_factory=uuid.uuid1, alias="_id")
     email: str = Field(...)
     hash: str = Field(...)
     token: str = Field(...)
@@ -27,15 +28,13 @@ class UserUpdate(BaseModel):
     """
     The model for updating a user in the mongodb Users collection:
     
-    email - optional to update
+    email - necessary
     hash  - optional to update
     token - optional to update
-    vault - optional to update
     """
-    email: Optional[str]
+    email: str
     hash: Optional[str]
     token: Optional[str]
-    vault: Optional[str]
 
 
 class HashSchema(BaseModel):
@@ -44,6 +43,16 @@ class HashSchema(BaseModel):
     """
     hash: str = Field(...)
 
+
+class VaultSchema(BaseModel):
+    """
+    Allows functions to parse request bodies that only include a vault
+    """
+    hash: str = Field(...)
+    vault: str = Field(...)
+
+
+# Successful Response Schemas
 
 def LoginResponseSchema(vault):
     """
@@ -113,6 +122,8 @@ def DeleteResponseSchema():
 
     return delete_response
 
+
+# Error Response Schema
 
 def LoginErrorSchema(message):
     """

@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException, status, Response, Body
 from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
-from models import UserSchema, UserUpdate, HashSchema, LoginResponseSchema, CreateResponseSchema, UpdateResponseSchema, VaultResponseSchema, DeleteResponseSchema, LoginErrorSchema, CreateErrorSchema, UpdateErrorSchema, VaultErrorSchema, DeleteErrorSchema
+from models import UserSchema, UserUpdate, HashSchema, VaultSchema, LoginResponseSchema, CreateResponseSchema, UpdateResponseSchema, VaultResponseSchema, DeleteResponseSchema, LoginErrorSchema, CreateErrorSchema, UpdateErrorSchema, VaultErrorSchema, DeleteErrorSchema
 from database import add_user, find_user, auth_user, find_vault, update_user, update_vault, delete_user
 import uvicorn
 import os
@@ -27,14 +27,66 @@ async def login(hash: HashSchema = Body(...)):
         return LoginErrorSchema("Login Failed")
 
 
-#@app.post(path="/account-create/", status_code=status.HTTP_201_CREATED)
-#async def create_user(user: UserSchema = Body(...)):
-#    """
-#    
-#    """
+@app.post(path="/account-create/", status_code=status.HTTP_201_CREATED)
+async def create_user(user: UserSchema = Body(...)):
+    """
     
+    """
+    new_user = jsonable_encoder(user)
+    result = await add_user(new_user)
+    if result == "failure":
+        return CreateErrorSchema("Account Creation Failed")
+    else:
+        return CreateResponseSchema()
 
 
+@app.put(path="/account-update", status_code=status.HTTP_200_OK)
+async def user_update(user_data: UserUpdate = Body (...)):
+    """
+    
+    """
+    user_json = jsonable_encoder(user_data)
+    result = await update_user(user_json)
+    if result == "failure":
+        return UpdateErrorSchema("Failure")
+    if result == "failure to find user":
+        return UpdateErrorSchema("Failure")
+    if result == "failure to update":
+        return UpdateErrorSchema("Failed to Update User")
+    elif result == "success":
+        return UpdateResponseSchema()
+
+
+@app.put(path="/vault-update", status_code=status.HTTP_200_OK)
+async def vault_update(vault_data: VaultSchema = Body (...)):
+    """
+    
+    """
+    vault_json = jsonable_encoder(vault_data)
+    hash = vault_json["hash"]
+    vault = vault_json["vault"]
+    result = await update_vault(hash, vault)
+    if result == "failure to update vault":
+        return VaultErrorSchema("Failure to Update Vault")
+    if result == "failure to find user":
+        return VaultErrorSchema("Failure")
+    elif result == "success":
+        return VaultResponseSchema()
+
+
+@app.post(path="/account-delete/", status_code=status.HTTP_200_OK)
+async def user_delete(hash: HashSchema = Body(...)):
+    """
+    
+    """
+    master_hash = jsonable_encoder(hash)
+    result = await delete_user(master_hash["hash"])
+    if result == "failure to find user":
+        return DeleteErrorSchema("Failure to Find User")
+    if result == "failure to delete user":
+        return DeleteErrorSchema("Failure to Delete User")
+    elif result == "success":
+        return DeleteResponseSchema()
 
 
 app.add_middleware(

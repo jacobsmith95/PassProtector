@@ -2,7 +2,7 @@ import motor.motor_asyncio
 import json
 
 
-db_details = "mongodb+srv://<username>:<password>@scmcluster.0yumvz4.mongodb.net/?retryWrites=true&w=majority&appName=SCMCluster"
+db_details = "mongodb+srv://smithj24:8YwoKXyo8fsCaKU8@scmcluster.0yumvz4.mongodb.net/?retryWrites=true&w=majority&appName=SCMCluster"
 
 client = motor.motor_asyncio.AsyncIOMotorClient(db_details)
 database = client["UserDatabase"]
@@ -107,13 +107,14 @@ async def update_user(new_data: dict):
         return "failure to find user"
 
 
-async def update_vault(hash: str, new_vault: str):
+async def update_vault(hash: str, new_vault: dict):
     """
     
     """
     user = await collection.find_one({"hash": hash})
+    vault = json.dumps(new_vault)
     if user is not None:
-        updated = await collection.update_one({"_id": user["_id"]}, {"$set": {"vault": new_vault}})
+        updated = await collection.update_one({"_id": user["_id"]}, {"$set": {"vault": vault}})
         if updated is None:
             return "failure to update vault"
         return "success"

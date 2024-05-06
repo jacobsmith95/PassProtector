@@ -49,7 +49,7 @@ class VaultSchema(BaseModel):
     Allows functions to parse request bodies that only include a vault
     """
     hash: str = Field(...)
-    vault: str = Field(...)
+    vault: dict = Field(...)
 
 
 # Successful Response Schemas

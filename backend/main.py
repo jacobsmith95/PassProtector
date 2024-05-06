@@ -36,7 +36,7 @@ async def create_user(user: UserSchema = Body(...)):
     result = await add_user(new_user)
     if result == "failure":
         return CreateErrorSchema("Account Creation Failed")
-    else:
+    elif result == "success":
         return CreateResponseSchema()
 
 

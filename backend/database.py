@@ -26,6 +26,19 @@ def user_helper(user) -> dict:
     return dict
 
 
+def create_helper(user) -> dict:
+    """
+    takes a user returned from the database and returns a dict object
+    """
+    dict = {
+    "id"    : str(user["_id"]),
+    "email" : user["email"],
+    "hash"  : user["hash"],
+    }
+
+    return dict
+
+
 def update_helper(data) -> dict:
     """
     
@@ -42,6 +55,7 @@ def update_helper(data) -> dict:
 
 
 
+
 #Database CRUD Functions
 
 async def add_user(user_data: dict):
@@ -50,10 +64,25 @@ async def add_user(user_data: dict):
     """
     result = await collection.insert_one(user_data)
     new_user = await collection.find_one({"_id": result.inserted_id})
-    if new_user is None:
-        return "failure"
+    if new_user is not None:
+        user_dict = create_helper(new_user)
+        vault_dict = {
+            "ID": "Null",
+            "account": "",
+            "username": "",
+            "password": "",
+            "notes": ""
+            }
+        vault_json = json.dumps(vault_dict)
+        result_token = await collection.update_one({"hash": user_dict["hash"]}, {"$set": {"token": "None"}})
+        if result_token.modified_count == 0:
+            return "failure"
+        result_vault = await collection.update_one({"hash": user_dict["hash"]}, {"$set": {"vault": vault_json}})
+        if result_vault.modified_count == 0:
+            return "failure"
+        return "success"
     else:
-        return user_helper(new_user)
+        return "failure"
 
 
 async def find_user(hash: str):

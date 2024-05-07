@@ -65,10 +65,17 @@ async def add_user(user_data: dict):
     check = await collection.find_one({"email": user_data["email"]})
     if check is not None:
         return "failure"
+    vault = user_data["vault"]
+    del user_data["vault"]
     result = await collection.insert_one(user_data)
     new_user = await collection.find_one({"_id": result.inserted_id})
     if new_user is not None:
-        return "success"
+        vault_json = json.dumps(vault)
+        vault_add = await collection.update_one({"hash": new_user["hash"]}, {"$set": {"vault": vault_json}})
+        if vault_add.modified_count == 1:
+            return "success"
+        else:
+            return "failure"
     else:
         return "failure"
 

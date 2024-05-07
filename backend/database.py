@@ -2,7 +2,7 @@ import motor.motor_asyncio
 import json
 
 
-db_details = "mongodb+srv://<username>:<password>@scmcluster.0yumvz4.mongodb.net/?retryWrites=true&w=majority&appName=SCMCluster"
+db_details = "mongodb+srv://smithj24:8YwoKXyo8fsCaKU8@scmcluster.0yumvz4.mongodb.net/?retryWrites=true&w=majority&appName=SCMCluster"
 
 client = motor.motor_asyncio.AsyncIOMotorClient(db_details)
 database = client["UserDatabase"]
@@ -26,17 +26,17 @@ def user_helper(user) -> dict:
     return dict
 
 
-def create_helper(user) -> dict:
-    """
-    takes a user returned from the database and returns a dict object
-    """
-    dict = {
-    "id"    : str(user["_id"]),
-    "email" : user["email"],
-    "hash"  : user["hash"],
-    }
-
-    return dict
+#def create_helper(user) -> dict:
+#    """
+#    takes a user returned from the database and returns a dict object
+#    """
+#    dict = {
+#    "id"    : str(user["_id"]),
+#    "email" : user["email"],
+#    "hash"  : user["hash"],
+#    }
+#
+#    return dict
 
 
 def update_helper(data) -> dict:
@@ -62,24 +62,12 @@ async def add_user(user_data: dict):
     """
     
     """
+    check = await collection.find_one({"email": user_data["email"]})
+    if check is not None:
+        return "failure"
     result = await collection.insert_one(user_data)
     new_user = await collection.find_one({"_id": result.inserted_id})
     if new_user is not None:
-        user_dict = create_helper(new_user)
-        vault_dict = {
-            "ID": "Null",
-            "account": "",
-            "username": "",
-            "password": "",
-            "notes": ""
-            }
-        vault_json = json.dumps(vault_dict)
-        result_token = await collection.update_one({"hash": user_dict["hash"]}, {"$set": {"token": "None"}})
-        if result_token.modified_count == 0:
-            return "failure"
-        result_vault = await collection.update_one({"hash": user_dict["hash"]}, {"$set": {"vault": vault_json}})
-        if result_vault.modified_count == 0:
-            return "failure"
         return "success"
     else:
         return "failure"

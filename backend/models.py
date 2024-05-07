@@ -15,7 +15,7 @@ class UserSchema(BaseModel):
     email: str = Field(...)
     hash: str = Field(...)
     token: str = Field(...)
-    vault: str = Field(...)
+    vault: dict = Field(...)
 
     class Config:
         populate_by_name = True
@@ -51,7 +51,7 @@ class VaultSchema(BaseModel):
 
 # Successful Response Schemas
 
-def LoginResponseSchema(token):
+def LoginResponseSchema(vault):
     """
     Defines the dictionary reponse sent back as the response body for routes:
 
@@ -62,7 +62,7 @@ def LoginResponseSchema(token):
     login_response = {
         "login_result" : "success",
         "login_body"   : None,
-        "token"        : token
+        "encrypted_vault" : vault
     }
 
     return login_response

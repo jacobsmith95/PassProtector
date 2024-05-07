@@ -29,9 +29,8 @@ class UserUpdate(BaseModel):
     hash  - optional to update
     token - optional to update
     """
-    email: str
-    hash: Optional[str]
-    token: Optional[str]
+    email: str = Field(...)
+    hash: str = Field(...)
 
 
 class HashSchema(BaseModel):

@@ -123,7 +123,7 @@ async def update_user(new_data: dict):
     email = new_data["email"]
     user = await collection.find_one({"email": email})
     if user is not None:
-        updated = await collection.update_one({"_id": user["_id"]}, {"$set": new_data})
+        updated = await collection.update_one({"_id": user["_id"]}, {"$set": {"hash": new_data["hash"]}})
         if updated is None:
             return "failure to update"
         return "success"

@@ -2,7 +2,7 @@ import motor.motor_asyncio
 import json
 
 
-db_details = "mongodb+srv://smithj24:8YwoKXyo8fsCaKU8@scmcluster.0yumvz4.mongodb.net/?retryWrites=true&w=majority&appName=SCMCluster"
+db_details = "mongodb+srv://backend_server:x9cA3yHfnVGCbl2Q@scmcluster.0yumvz4.mongodb.net/?retryWrites=true&w=majority&appName=SCMCluster"
 
 client = motor.motor_asyncio.AsyncIOMotorClient(db_details)
 database = client["UserDatabase"]
@@ -150,7 +150,7 @@ async def delete_user(hash: str):
     """
     
     """
-    user = await collection.find_one({"hash": hash["hash"]})
+    user = await collection.find_one({"hash": hash})
     if user is not None:
         result = await collection.delete_one({"_id": user["_id"]})
         if result.deleted_count == 0:

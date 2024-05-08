@@ -150,7 +150,7 @@ async def delete_user(hash: str):
     """
     
     """
-    user = await collection.find_one({"hash": hash})
+    user = await collection.find_one({"hash": hash["hash"]})
     if user is not None:
         result = await collection.delete_one({"_id": user["_id"]})
         if result.deleted_count == 0:

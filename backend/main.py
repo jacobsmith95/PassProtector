@@ -1,56 +1,97 @@
-from fastapi import Depends, FastAPI, HTTPException, status, Body
-from fastapi.security import OAuth2PasswordRequestForm
+from fastapi import FastAPI, status, Body
 from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
-from typing import Annotated
-from user_routes import router as UserRouter
-from models import User
-import bcrypt
-import database_init as dbi
+from models import UserSchema, UserUpdate, HashSchema, VaultSchema, LoginResponseSchema, AuthResponseSchema, CreateResponseSchema, UpdateResponseSchema, VaultResponseSchema, DeleteResponseSchema, LoginErrorSchema, AuthErrorSchema, CreateErrorSchema, UpdateErrorSchema, VaultErrorSchema, DeleteErrorSchema
+from database import add_user, find_user, auth_user, find_vault, update_user, update_vault, delete_user
+import time
+import uuid
 import uvicorn
 import os
 
+
 app = FastAPI()
+
 
 origins = [
     "https://frontend-ngnhr6tt3a-ul.a.run.app"
 ]
 
-app.include_router(UserRouter, tags=["Users"], prefix="/authenticated")
 
-client = dbi.init_database()
-db = client["user_database"]
-collection = db["Users"]
-
-@app.post("/token")
-async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
-
-    collection = client.get_database()
-
-    token = getToken(form_data.password, form_data.username)
-
-    if token not in collection:
-        raise HTTPException(status_code=400, detail="Incorrect username or password")
-
-    return {"access_token": token, "token_type": "bearer"}
-
-
-def getToken(password, username):
-    return bcrypt.hashpw(password, username)
-
-
-@app.post("/create", response_description="create a new user", status_code=status.HTTP_201_CREATED, response_model=User)
-async def create_user(user: User = Body(...)):
+@app.post(path="/login/", status_code=status.HTTP_200_OK)
+async def login(hash: HashSchema = Body(...)):
     """
-    Creates a new user in the Users collection and returns the created user's entry as defined by the User model
+    
+    """
+    master_hash = jsonable_encoder(hash)
+    result = await auth_user(master_hash["hash"])
+    if result == "success":
+        vault = await find_vault(master_hash["hash"])
+        return LoginResponseSchema(vault)
+    else:
+        return LoginErrorSchema("Login Failed")
+    
+
+@app.post(path="/account-create/", status_code=status.HTTP_201_CREATED)
+async def create_user(user: UserSchema = Body(...)):
+    """
+    
     """
     new_user = jsonable_encoder(user)
-    result = await collection.insert_one(new_user)
-    created_user = await collection.find_one({"_id": result.inserted_id})
-    if created_user is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"user not created")
+    result = await add_user(new_user)
+    if result == "failure":
+        return CreateErrorSchema("Account Creation Failed")
+    elif result == "success":
+        return CreateResponseSchema()
 
-    return created_user
+
+@app.put(path="/account-update", status_code=status.HTTP_200_OK)
+async def user_update(user_data: UserUpdate = Body (...)):
+    """
+    
+    """
+    user_json = jsonable_encoder(user_data)
+    result = await update_user(user_json)
+    if result == "failure":
+        return UpdateErrorSchema("Failure")
+    if result == "failure to find user":
+        return UpdateErrorSchema("Failure to find User")
+    if result == "failure to update":
+        return UpdateErrorSchema("Failed to Update User")
+    elif result == "success":
+        return UpdateResponseSchema()
+
+
+@app.put(path="/vault-update", status_code=status.HTTP_200_OK)
+async def vault_update(vault_data: VaultSchema = Body (...)):
+    """
+    
+    """
+    vault_json = jsonable_encoder(vault_data)
+    hash = vault_json["hash"]
+    vault = vault_json["vault"]
+    result = await update_vault(hash, vault)
+    if result == "failure to update vault":
+        return VaultErrorSchema("Failure to Update Vault")
+    if result == "failure to find user":
+        return VaultErrorSchema("Failure")
+    elif result == "success":
+        return VaultResponseSchema()
+
+
+@app.post(path="/account-delete/", status_code=status.HTTP_200_OK)
+async def user_delete(hash: HashSchema = Body(...)):
+    """
+    
+    """
+    master_hash = jsonable_encoder(hash)
+    result = await delete_user(master_hash["hash"])
+    if result == "failure to find user":
+        return DeleteErrorSchema("Failure to Find User")
+    if result == "failure to delete user":
+        return DeleteErrorSchema("Failure to Delete User")
+    elif result == "success":
+        return DeleteResponseSchema()
+
 
 app.add_middleware(
     CORSMiddleware,
@@ -60,6 +101,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 if __name__ == "__main__":
     uvicorn.run(app, host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))
-    

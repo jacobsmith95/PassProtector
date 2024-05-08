@@ -1,43 +1,58 @@
-.header {
-  background-color: #f1f1f1;
-  padding: 20px;
+.App {
   font-family: sans-serif;
-}
-
-.header h1 {
   text-align: center;
-  margin-bottom: 0;
-  font-size: 20px;
+  font-size: 15px;
 }
 
-.header p {
-  text-align: center;
-}
-
-.header .logo {
-  text-align: center;
-}
-
-.header .logo img {
-  cursor: pointer;
-  width: 100px;
+.table {
+  border-radius: 5px;
+  width: 75%;
+  margin: 0px auto;
+  float: none;
 }
 
 .links {
-  background-color: #000;
+  background-color: black;
   text-align: center;
   font-family: sans-serif;
-  padding: 15px 0;
+  padding: 15px;
+  margin: 0px 0px 30px 0px;
+  font-weight: bold;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;  
 }
 
-.links .linkItem {
-  display: inline-block;
-  margin: 0 30px;
-}
-
-.links .linkItem a {
-  color: #fff;
+.linkItem a {
+  color: white;
+  margin: 0 20px;
   text-decoration: none;
+}
+
+.linkItemActive a {
+  color: rgb(248, 248, 147);
+  margin: 0 20px;
+  text-decoration: none;
+}
+
+.a:visited {
+  color: white;
+  margin: 0 20px;
+  text-decoration: none;
+}
+
+.inputs .input {
+  text-align: left;
+  height: 25px;
+  width: 250px;
+  margin: 5px 0;
+}
+
+.inputs .button {
+  text-align: center;
+  font-weight: bold;
+  padding: 7px 15px;
 }
 
 .page {
@@ -53,34 +68,13 @@
   text-align: center;
 }
 
-.inputs .input {
-  text-align: center;
+.card_loc {
+  width: 200px;
+  margin: auto; 
+  margin-top: 20px;
+  padding: 10px;
 }
 
-.inputs .input input {
-  height: 30px;
-  width: 300px;
-  margin: 5px 0;
-}
-
-.inputs .button {
-  text-align: center;
-}
-
-.inputs .button button {
-  background-color: #555;
-  border: none;
-  padding: 15px 30px;
-  color: #fff;
-  width: 308px;
-  margin: 10px 0;
-}
-
-.error {
-  background-color: red;
-  width: 280px;
-  margin: 5px 0;
-  margin: 0 auto;
-  padding: 15px;
-  color: #fff;
+.button-padding-left {
+  padding: 0 0 10px 13%
 }

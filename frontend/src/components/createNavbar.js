@@ -1,36 +1,39 @@
-import { Link, Route, Routes } from "react-router-dom";
-import { AuthObject } from "../auth/authWrapper";
-import { nav } from "./navbarData";
+import { Link, Route, Routes, useLocation } from "react-router-dom";
+import { AuthObject } from "../auth/authWrapper.js";
+import { nav } from "./navbarData.js";
    
 export const CreateLinks = () => {
 
+     const pageURL = useLocation();
      const { user, logout } = AuthObject()
 
      const LinkItem = ({r}) => {
           return (
-               <div className="linkItem"><Link to={r.path}>{r.name}</Link></div>
+               <div className={pageURL.pathname.includes(r.path) ? "linkItemActive" : "linkItem"}>  
+               <Link to={r.path}>{r.name}</Link></div>
           )
      }
 
      return (
           <div className="links">
+          {/* <div className="navbar navbar-dark bg-dark" */}
                { nav.map((r, i) => {
 
-                    if (!r.isSecure && r.isNav) {
+                    if (!user.isAuthenticated && r.isLogin) {
                          return (
                               <LinkItem key={i} r={r}/>
                          )
-                    } else if (user.isAuthenticated && r.isNav) {
+                    }
+                    else if (user.isAuthenticated && r.isSecure) {
                          return (
                               <LinkItem key={i} r={r}/>
-                         )
+                         ) 
                     } else return false
                } )}
 
                { user.isAuthenticated ?
-               <div className="linkItem"><Link to={'/'} onClick={logout}>Log out</Link></div>
-               :
-               <div className="linkItem"><Link to={'login'}>Log in</Link></div> }
+               <div className="linkItem"><Link to={'/login'} onClick={logout}>Log out</Link></div>
+               : false }
           </div>
      )
 }

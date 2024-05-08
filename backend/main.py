@@ -78,7 +78,7 @@ async def vault_update(vault_data: VaultSchema = Body (...)):
         return VaultResponseSchema()
 
 
-@app.delete(path="/account-delete/", status_code=status.HTTP_200_OK)
+@app.post(path="/account-delete/", status_code=status.HTTP_200_OK)
 async def user_delete(hash: HashSchema = Body(...)):
     """
     

@@ -44,7 +44,7 @@ async def create_user(user: UserSchema = Body(...)):
         return CreateResponseSchema()
 
 
-@app.put(path="/account-update", status_code=status.HTTP_200_OK)
+@app.put(path="/account-update/", status_code=status.HTTP_200_OK)
 async def user_update(user_data: UserUpdate = Body (...)):
     """
     
@@ -61,7 +61,7 @@ async def user_update(user_data: UserUpdate = Body (...)):
         return UpdateResponseSchema()
 
 
-@app.put(path="/vault-update", status_code=status.HTTP_200_OK)
+@app.put(path="/vault-update/", status_code=status.HTTP_200_OK)
 async def vault_update(vault_data: VaultSchema = Body (...)):
     """
     

@@ -1,12 +1,16 @@
-from fastapi import FastAPI, HTTPException, status, Response, Body
+from fastapi import FastAPI, status, Body
 from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
-from models import UserSchema, UserUpdate, HashSchema, VaultSchema, LoginResponseSchema, CreateResponseSchema, UpdateResponseSchema, VaultResponseSchema, DeleteResponseSchema, LoginErrorSchema, CreateErrorSchema, UpdateErrorSchema, VaultErrorSchema, DeleteErrorSchema
+from models import UserSchema, UserUpdate, HashSchema, VaultSchema, LoginResponseSchema, AuthResponseSchema, CreateResponseSchema, UpdateResponseSchema, VaultResponseSchema, DeleteResponseSchema, LoginErrorSchema, AuthErrorSchema, CreateErrorSchema, UpdateErrorSchema, VaultErrorSchema, DeleteErrorSchema
 from database import add_user, find_user, auth_user, find_vault, update_user, update_vault, delete_user
+import time
+import uuid
 import uvicorn
 import os
 
+
 app = FastAPI()
+
 
 origins = [
     "https://frontend-ngnhr6tt3a-ul.a.run.app"
@@ -25,7 +29,7 @@ async def login(hash: HashSchema = Body(...)):
         return LoginResponseSchema(vault)
     else:
         return LoginErrorSchema("Login Failed")
-
+    
 
 @app.post(path="/account-create/", status_code=status.HTTP_201_CREATED)
 async def create_user(user: UserSchema = Body(...)):
@@ -36,7 +40,7 @@ async def create_user(user: UserSchema = Body(...)):
     result = await add_user(new_user)
     if result == "failure":
         return CreateErrorSchema("Account Creation Failed")
-    else:
+    elif result == "success":
         return CreateResponseSchema()
 
 
@@ -50,7 +54,7 @@ async def user_update(user_data: UserUpdate = Body (...)):
     if result == "failure":
         return UpdateErrorSchema("Failure")
     if result == "failure to find user":
-        return UpdateErrorSchema("Failure")
+        return UpdateErrorSchema("Failure to find User")
     if result == "failure to update":
         return UpdateErrorSchema("Failed to Update User")
     elif result == "success":

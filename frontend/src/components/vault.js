@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { AuthObject } from "../auth/authWrapper.js";
+import { encryptVault } from "../components/frontend-encryption.js";
+import { axiosConfigPost } from "../configs.js"
+import axios from 'axios';
 
 export const Vault = () => {
 
-    const { vaultDecrypted, setVaultDecrypted } = AuthObject()
+    const { vaultDecrypted, setVaultDecrypted, masterHash, masterKey } = AuthObject()
+
+    console.log(vaultDecrypted)
 
     const addItem = (item) => {
         let obj = { 
-            ID: vaultDecrypted[vaultDecrypted.length-1].ID + 1, 
+            ID: vaultDecrypted.length === 0 ? 1: vaultDecrypted[vaultDecrypted.length-1].ID + 1, 
             account: item.account,
             username: item.username,
             password: item.password,
@@ -19,6 +24,7 @@ export const Vault = () => {
 
     const deleteItem = (index) => {
         setVaultDecrypted(vaultDecrypted.filter((_, i) => i !== index));
+        console.log(vaultDecrypted)
     }
 
     const editItem = (item) => {
@@ -46,13 +52,28 @@ export const Vault = () => {
     }, [vaultDecrypted])
 
     const showList = () => {
-        setContent(< VaultList vaultDecrypted={vaultDecrypted} showForm={showForm} editItem={editItem} deleteItem={deleteItem} />)
+        setContent(< VaultList vaultDecrypted={vaultDecrypted} showForm={showForm} editItem={editItem} deleteItem={deleteItem} saveVault={saveVault}/>)
     }
 
     const showForm = (item) => {
         setContent(< VaultForm item={item} showList={showList} editItem={editItem} addItem={addItem} />)
     }
- 
+    
+    const saveVault = () => {       
+        const encrypted_vault = encryptVault(masterKey, vaultDecrypted)
+        console.log(masterHash)
+        console.log(encrypted_vault)
+        axios.post('https://backend-ngnhr6tt3a-ul.a.run.app/vault-update/', {'hash': masterHash, 'vault': encrypted_vault}, axiosConfigPost)       
+        //axios.post('http://localhost:8000/vault-update/', {'hash': masterHash, 'vault': encrypted_vault}, axiosConfigPost)
+        .then(res => {
+             if (res.data.vault_update_result === "success") {
+                window.alert("Vault saved");
+             } else {
+                window.alert(res.data.vault_update_result);
+             }
+        })
+    }
+
     const [content, setContent] = useState(< VaultList vaultDecrypted={vaultDecrypted} showForm={showForm} editItem={editItem} deleteItem={deleteItem} />)
     
     return (
@@ -68,9 +89,10 @@ const VaultList = (props) => {
         <>
         <div className="container-md">     
         <div className="text-left button-padding-left">
-        <button onClick={() => props.showForm({}) } type="button" className="btn btn-success btn-lg me-2">Create</button>
+        <button onClick={() => props.showForm({}) } type="button" className="btn btn-success btn-lg me-2">Create Item</button>
+        <button onClick={() => props.saveVault({}) } type="button" className="btn btn-success btn-lg me-2">Save Vault</button>
         </div>
-
+  
         <table className="table table-striped text-left w-75">
             <thead className="table-dark">
                 <tr>

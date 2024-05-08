@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { axiosConfigPost } from "../configs.js"
 import { GeneratePW } from "./generate_pw.js"
 
+import { generateMasterKey, encryptVault } from "./frontend-encryption.js";
+
 import axios from 'axios';
 
 export const CreateAccount = () => {
@@ -12,29 +14,27 @@ export const CreateAccount = () => {
     const [genPW, setGenPW] = useState(null)
     const navigate = useNavigate();
 
-    const createAccountPost = (email, password) => {  
+    const createAccountHandler = (email, password) => {  
 
-        return new Promise((resolve, reject) => {
-    
-            // axios.post('https://backend-ngnhr6tt3a-ul.a.run.app/login/', {'email': email, 'password': password}, axiosConfigPost)
-            axios.post('http://localhost:8000/create-account/', {'email': email, 'password': password}, axiosConfigPost)
-            .then(res => {
-                const api_respose = res.data.api_result;
-                console.log(api_respose)
-                resolve("success")
-            })
-        })                    
-    }
-   
-    const createAccountHandler = async (email, password) => {
-        
-        try {           
-            await createAccountPost(email, password)
-            window.alert("Account created!");
-            navigate("/login")
-        } catch (error) {
-            setErrorMessage(error)               
-        }       
+
+        const masterValues = generateMasterKey(email, password)
+        const masterHash = masterValues.masterHash
+        const masterKey = masterValues.masterKey
+
+        console.log(masterHash)
+
+        const encrypted_vault = encryptVault(masterKey, [])
+        console.log(encrypted_vault)
+        axios.post('https://backend-ngnhr6tt3a-ul.a.run.app/account-create/', {'email': email, 'hash': masterHash, 'token': "Test token", 'vault': encrypted_vault}, axiosConfigPost)        
+        // axios.post('http://localhost:8000/account-create/', {'email': email, 'hash': masterHash, 'token': "Test token", 'vault': encrypted_vault}, axiosConfigPost)
+        .then(res => {
+            if (res.data.account_create_result === "success") {
+                window.alert("Account created!");
+                navigate("/login")
+            } else {
+                setErrorMessage(res.data.account_create_result)  
+            }
+       })                          
     }
 
     const handleGenPW = () => {

@@ -50,7 +50,7 @@ class VaultSchema(BaseModel):
 
 # Successful Response Schemas
 
-def LoginResponseSchema(vault):
+def LoginResponseSchema(token):
     """
     Defines the dictionary reponse sent back as the response body for routes:
 
@@ -61,7 +61,7 @@ def LoginResponseSchema(vault):
     login_response = {
         "login_result" : "success",
         "login_body"   : None,
-        "encrypted_vault" : vault
+        "token"        : token
     }
 
     return login_response

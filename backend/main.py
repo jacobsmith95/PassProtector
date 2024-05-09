@@ -3,7 +3,7 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
 from models import UserSchema, UserUpdate, HashSchema, VaultSchema, LoginResponseSchema, AuthResponseSchema, CreateResponseSchema, UpdateResponseSchema, VaultResponseSchema, DeleteResponseSchema, LoginErrorSchema, AuthErrorSchema, CreateErrorSchema, UpdateErrorSchema, VaultErrorSchema, DeleteErrorSchema
 from database import add_user, find_user, auth_user, find_vault, update_user, update_vault, delete_user
-import time
+#import time
 import uuid
 import uvicorn
 import os
@@ -25,11 +25,28 @@ async def login(hash: HashSchema = Body(...)):
     master_hash = jsonable_encoder(hash)
     result = await auth_user(master_hash["hash"])
     if result == "success":
-        vault = await find_vault(master_hash["hash"])
-        return LoginResponseSchema(vault)
+        token = uuid.uuid4()
+
+        return LoginResponseSchema(token)
     else:
         return LoginErrorSchema("Login Failed")
     
+
+@app.post(path="/get-vault/", status_code=status.HTTP_200_OK)
+async def login(hash: HashSchema = Body(...)):
+    """
+    
+    """
+    master_hash = jsonable_encoder(hash)
+    result = await auth_user(master_hash["hash"])
+    if result == "success":
+        vault = await find_vault(master_hash["hash"])
+        if vault == "failure":
+            AuthErrorSchema("Get Vault Failed")
+        return AuthResponseSchema(vault)
+    else:
+        return AuthErrorSchema("Find User Failed")
+
 
 @app.post(path="/account-create/", status_code=status.HTTP_201_CREATED)
 async def create_user(user: UserSchema = Body(...)):

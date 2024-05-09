@@ -1,9 +1,9 @@
 from fastapi import FastAPI, status, Body
 from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
-from models import UserSchema, UserUpdate, HashSchema, VaultSchema, LoginResponseSchema, AuthResponseSchema, CreateResponseSchema, UpdateResponseSchema, VaultResponseSchema, DeleteResponseSchema, LoginErrorSchema, AuthErrorSchema, CreateErrorSchema, UpdateErrorSchema, VaultErrorSchema, DeleteErrorSchema
-from database import add_user, find_user, auth_user, find_vault, update_user, update_vault, delete_user
-#import time
+from models import UserSchema, UserUpdate, HashSchema, EmailSchema, VaultSchema, MFASchema, LoginResponseSchema, AuthResponseSchema, CreateResponseSchema, MFAResponseSchema, UpdateResponseSchema, VaultResponseSchema, DeleteResponseSchema, LoginErrorSchema, AuthErrorSchema, CreateErrorSchema, MFAErrorSchema, UpdateErrorSchema, VaultErrorSchema, DeleteErrorSchema
+from database import add_user, mfa_user, token_addition, token_removal, token_verification, find_user, auth_user, mfa_verify, find_vault, update_user, update_vault, delete_user
+import time
 import uuid
 import uvicorn
 import os
@@ -26,8 +26,15 @@ async def login(hash: HashSchema = Body(...)):
     result = await auth_user(master_hash["hash"])
     if result == "success":
         token = uuid.uuid4()
-
-        return LoginResponseSchema(token)
+        token_dict = {
+            "token": token,
+            "time" : time.time()
+        }
+        token_add = await token_addition(master_hash["hash"], token_dict)
+        if token_add == "failure":
+            return "failure"
+        else:
+            return LoginResponseSchema(token)
     else:
         return LoginErrorSchema("Login Failed")
     
@@ -57,8 +64,24 @@ async def create_user(user: UserSchema = Body(...)):
     result = await add_user(new_user)
     if result == "failure":
         return CreateErrorSchema("Account Creation Failed")
-    elif result == "success":
-        return CreateResponseSchema()
+    mfa_result = await mfa_user(new_user["email"])
+    if mfa_result == "failure":
+        return CreateErrorSchema("Account Creation Failed")
+    else:
+        return CreateResponseSchema(mfa_result)
+    
+
+@app.post(path="/auth-create/", status_code=status.HTTP_200_OK)
+async def auth_user(mfa_schema: MFASchema = Body(...)):
+    """
+    
+    """
+    mfa_json = jsonable_encoder(mfa_schema)
+    result = await mfa_verify(mfa_json["hash"], mfa_json["code"])
+    if result == "success":
+        return MFAResponseSchema()
+    else:
+        return MFAErrorSchema("Account Verification Failed")   
 
 
 @app.post(path="/account-update/", status_code=status.HTTP_200_OK)

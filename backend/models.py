@@ -40,12 +40,27 @@ class HashSchema(BaseModel):
     hash: str = Field(...)
 
 
+class EmailSchema(BaseModel):
+    """
+    Allows functions to parse request bodies that only include a hash
+    """
+    email: str = Field(...)
+
+
 class VaultSchema(BaseModel):
     """
     Allows functions to parse request bodies that only include a vault
     """
     hash: str = Field(...)
     vault: dict = Field(...)
+
+
+class MFASchema(BaseModel):
+    """
+    Allows functions to parse request bodies that only include a hash
+    """
+    hash: str = Field(...)
+    code: str = Field(...)
 
 
 # Successful Response Schemas
@@ -84,17 +99,32 @@ def AuthResponseSchema(vault):
     return auth_response
 
 
-def CreateResponseSchema():
+def CreateResponseSchema(url):
     """
     Defines the dictionary reponse sent back as the response body for routes:
 
     account_create_result - whether the operation resulted in success or not
+    qr_link               - the url for the MFA qr code
     """
     create_response = {
-        "account_create_result" : "success"
+        "account_create_result" : "success",
+        "qr_link"             : url
     }
 
     return create_response
+
+
+def MFAResponseSchema(url):
+    """
+    Defines the dictionary reponse sent back as the response body for routes:
+
+    account_auth_result - whether the operation resulted in success or not
+    """
+    mfa_response = {
+        "account_auth_result" : "success",
+    }
+
+    return mfa_response
 
 
 def UpdateResponseSchema():
@@ -175,6 +205,19 @@ def CreateErrorSchema(message):
     }
 
     return create_error
+
+
+def MFAErrorSchema(message):
+    """
+    Defines the dictionary error response sent back as the error body for routes:
+
+    account_create_result - the error that occurred
+    """
+    mfa_error = {
+        "account_create_result" : message
+    }
+
+    return mfa_error
 
 
 def UpdateErrorSchema(message):

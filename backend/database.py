@@ -1,3 +1,5 @@
+from backend_mfa import createAuthenticator, verify
+from token_authentication import TokenAuthenticator
 import motor.motor_asyncio
 import json
 
@@ -7,6 +9,9 @@ db_details = "mongodb+srv://backend_server:x9cA3yHfnVGCbl2Q@scmcluster.0yumvz4.m
 client = motor.motor_asyncio.AsyncIOMotorClient(db_details)
 database = client["UserDatabase"]
 collection = database["Users"]
+
+
+tokens = TokenAuthenticator()
 
 
 #Helper Functions:
@@ -78,6 +83,57 @@ async def add_user(user_data: dict):
             return "failure"
     else:
         return "failure"
+    
+
+async def mfa_user(email: str):
+    """
+    
+    """
+    user = await collection.find_one({"email": email})
+    if user is None:
+        return "failure"
+    user_dict = user_helper(user)
+    mfa_tuple = createAuthenticator(email)
+    url = mfa_tuple[0]
+    secret = mfa_tuple[1]
+    result = await collection.update_one({"hash": user_dict["hash"]}, {"$set": {"token": secret}})
+    if result.modified_count != 1:
+        return "failure"
+    return url
+
+
+
+async def token_addition(hash: str, token_dict: dict):
+    """
+    
+    """
+    result = await tokens.add_token(hash, token_dict)
+    if result != "success":
+        return "failure to add token"
+    else:
+        return "success"
+    
+
+async def token_verification(hash: str, token: str):
+    """
+    
+    """
+    result = await tokens.verify_token(hash, token)
+    if result != "success":
+        return "failure to verify"
+    else:
+        return "success"
+    
+
+async def token_removal(hash):
+    """
+    
+    """
+    result = await tokens.remove_token(hash)
+    if result != "success":
+        return "failure"
+    else:
+        return "success"
 
 
 async def find_user(hash: str):
@@ -99,6 +155,20 @@ async def auth_user(hash: str):
     if user is not None:
         return "success"
     return "failure"
+
+
+async def mfa_verify(hash: str, mfa_code: str):
+    """
+    
+    """
+    user = await collection.find_one({"hash": hash})
+    user_dict = user_helper(user)
+    secret = user_dict["token"]
+    result = await verify(secret, mfa_code)
+    if result is True:
+        return "success"
+    else:
+        return "failure"
     
 
 async def find_vault(hash: str):

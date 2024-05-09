@@ -33,7 +33,7 @@ async def login(hash: HashSchema = Body(...)):
     
 
 @app.post(path="/get-vault/", status_code=status.HTTP_200_OK)
-async def login(hash: HashSchema = Body(...)):
+async def get_vault(hash: HashSchema = Body(...)):
     """
     
     """

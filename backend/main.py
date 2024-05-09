@@ -17,6 +17,7 @@ origins = [
 ]
 
 
+
 @app.post(path="/login/", status_code=status.HTTP_200_OK)
 async def login(hash: HashSchema = Body(...)):
     """

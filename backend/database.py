@@ -107,7 +107,7 @@ async def token_addition(hash: str, token_dict: dict):
     """
     
     """
-    result = await tokens.add_token(hash, token_dict)
+    result = tokens.add_token(hash, token_dict)
     if result != "success":
         return "failure to add token"
     else:

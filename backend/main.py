@@ -31,9 +31,9 @@ async def login(hash: HashSchema = Body(...)):
             "token": token,
             "time" : time.time()
         }
-        token_add = await token_addition(master_hash["hash"], token_dict)
+        token_add = await token_addition(master_hash, token_dict)
         if token_add == "failure":
-            return "failure"
+            return LoginErrorSchema("Login Failed")
         else:
             return LoginResponseSchema(token)
     else:
@@ -73,12 +73,12 @@ async def create_user(user: UserSchema = Body(...)):
     
 
 @app.post(path="/auth-create/", status_code=status.HTTP_200_OK)
-async def auth_user(mfa_schema: MFASchema = Body(...)):
+async def auth_create(mfa_schema: MFASchema = Body(...)):
     """
     
     """
     mfa_json = jsonable_encoder(mfa_schema)
-    result = await mfa_verify(mfa_json["hash"], mfa_json["code"])
+    result = await mfa_verify(mfa_schema["hash"], mfa_schema["code"])
     if result == "success":
         return MFAResponseSchema()
     else:

@@ -118,7 +118,7 @@ async def token_verification(hash: str, token: str):
     """
     
     """
-    result = await tokens.verify_token(hash, token)
+    result = tokens.verify_token(hash, token)
     if result != "success":
         return "failure to verify"
     else:
@@ -129,7 +129,7 @@ async def token_removal(hash):
     """
     
     """
-    result = await tokens.remove_token(hash)
+    result = tokens.remove_token(hash)
     if result != "success":
         return "failure"
     else:

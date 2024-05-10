@@ -47,7 +47,7 @@ async def mfa_login(mfa: MFASchema = Body(...)):
     mfa_json = jsonable_encoder(mfa)
     result = await mfa_verify(mfa_json["hash"], mfa_json["code"])
     if result == "success":
-        return MFAResponseSchema
+        return MFAResponseSchema()
     else:
         return MFAErrorSchema("Failed to Verify")
     

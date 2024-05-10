@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { AuthObject } from "../auth/authWrapper.js";
-import { axiosConfigPost} from "../configs.js"
 import axios from 'axios';
+import { deployTarget, axiosConfigPost } from "../configs.js"
 import { generateMasterKey } from "./frontend-encryption.js";
+import { AuthObject } from "../auth/authWrapper.js";
 
 export const Settings = () => {
 
@@ -15,8 +15,7 @@ export const Settings = () => {
         setMasterHash(masterValues.masterHash)
         const masterHashNew = masterValues.masterHash
     
-        axios.post('https://backend-ngnhr6tt3a-ul.a.run.app/account-update/', {'email': user.email, 'hash': masterHashNew}, axiosConfigPost)
-        // axios.post('http://localhost:8000/account-update/', {'email': user.email, 'hash': masterHashNew}, axiosConfigPost)
+        axios.post(`${deployTarget}/account-update/`, {'email': user.email, 'hash': masterHashNew}, axiosConfigPost)
         .then(res => {
              if (res.data.account_update_result === "success") {
                 setPassword(user.password)
@@ -34,10 +33,7 @@ export const Settings = () => {
 
     const deleteUser = () => {
 
-        console.log({'hash': masterHash})
-
-        axios.post('https://backend-ngnhr6tt3a-ul.a.run.app/account-delete/', {'hash': masterHash}, axiosConfigPost)
-        // axios.post('http://localhost:8000/account-delete/', {'hash': masterHash}, axiosConfigPost)
+        axios.post(`${deployTarget}/account-delete/`, {'hash': masterHash}, axiosConfigPost)
         .then(res => {
              if (res.data.account_delete_result === "success") {
                 window.alert("Account deleted");

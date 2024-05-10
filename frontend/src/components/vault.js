@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from "react";
+import axios from 'axios';
+import { deployTarget, axiosConfigPost } from "../configs.js"
 import { AuthObject } from "../auth/authWrapper.js";
 import { encryptVault } from "../components/frontend-encryption.js";
-import { axiosConfigPost } from "../configs.js"
-import axios from 'axios';
 
 export const Vault = () => {
 
     const { vaultDecrypted, setVaultDecrypted, masterHash, masterKey } = AuthObject()
-
-    console.log(vaultDecrypted)
 
     const addItem = (item) => {
         let obj = { 
@@ -24,7 +22,6 @@ export const Vault = () => {
 
     const deleteItem = (index) => {
         setVaultDecrypted(vaultDecrypted.filter((_, i) => i !== index));
-        console.log(vaultDecrypted)
     }
 
     const editItem = (item) => {
@@ -61,10 +58,7 @@ export const Vault = () => {
     
     const saveVault = () => {       
         const encrypted_vault = encryptVault(masterKey, vaultDecrypted)
-        console.log(masterHash)
-        console.log(encrypted_vault)
-        axios.post('https://backend-ngnhr6tt3a-ul.a.run.app/vault-update/', {'hash': masterHash, 'vault': encrypted_vault}, axiosConfigPost)       
-        //axios.post('http://localhost:8000/vault-update/', {'hash': masterHash, 'vault': encrypted_vault}, axiosConfigPost)
+        axios.post(`${deployTarget}/vault-update/`, {'hash': masterHash, 'vault': encrypted_vault}, axiosConfigPost)
         .then(res => {
              if (res.data.vault_update_result === "success") {
                 window.alert("Vault saved");
@@ -161,7 +155,7 @@ const VaultForm = (props) => {
             <div className="col-sm-8">
             <input readOnly className="form-control-plaintext"
                 name = "ID"
-                defaultValue = {props.item.ID}
+                defaultValue={props.item.ID}
             ></input>
             </div>
         </div>
@@ -173,7 +167,7 @@ const VaultForm = (props) => {
             <div className="col-sm-8">
             <input className="form-control"
                 name = "account"
-                defaultValue = {props.item.account}
+                defaultValue={props.item.account}
             ></input>
             </div>
         </div>
@@ -183,7 +177,7 @@ const VaultForm = (props) => {
             <div className="col-sm-8">
             <input className="form-control"
                 name = "username"
-                defaultValue = {props.item.username}
+                defaultValue={props.item.username}
             ></input>
             </div>
         </div>

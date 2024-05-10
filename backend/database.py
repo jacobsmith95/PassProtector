@@ -164,7 +164,7 @@ async def mfa_verify(hash: str, mfa_code: str):
     user = await collection.find_one({"hash": hash})
     user_dict = user_helper(user)
     secret = user_dict["token"]
-    result = await verify(secret, mfa_code)
+    result = verify(secret, mfa_code)
     if result is True:
         return "success"
     else:

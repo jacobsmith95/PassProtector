@@ -78,7 +78,7 @@ async def auth_create(mfa_schema: MFASchema = Body(...)):
     
     """
     mfa_json = jsonable_encoder(mfa_schema)
-    result = await mfa_verify(mfa_schema["hash"], mfa_schema["code"])
+    result = await mfa_verify(mfa_json["hash"], mfa_json["code"])
     if result == "success":
         return MFAResponseSchema()
     else:

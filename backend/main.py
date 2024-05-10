@@ -17,7 +17,6 @@ origins = [
 ]
 
 
-
 @app.post(path="/login/", status_code=status.HTTP_200_OK)
 async def login(hash: HashSchema = Body(...)):
     """
@@ -38,6 +37,19 @@ async def login(hash: HashSchema = Body(...)):
             return LoginResponseSchema(token)
     else:
         return LoginErrorSchema("Login Failed")
+    
+
+@app.post(path="/mfa-login/", status_code=status.HTTP_200_OK)
+async def mfa_login(mfa: MFASchema = Body(...)):
+    """
+    
+    """
+    mfa_json = jsonable_encoder(mfa)
+    result = await mfa_verify(mfa_json["hash"], mfa_json["code"])
+    if result == "success":
+        return MFAResponseSchema
+    else:
+        return MFAErrorSchema("Failed to Verify")
     
 
 @app.post(path="/get-vault/", status_code=status.HTTP_200_OK)
@@ -132,6 +144,28 @@ async def user_delete(hash: HashSchema = Body(...)):
         return DeleteErrorSchema("Failure to Delete User")
     elif result == "success":
         return DeleteResponseSchema()
+    
+
+@app.post(path="/logout/", status_code=status.HTTP_200_OK)
+async def logout(hash: HashSchema = Body(...)):
+    """
+    
+    """
+    master_hash = jsonable_encoder(hash)
+    result = await auth_user(master_hash["hash"])
+    if result == "success":
+        token = uuid.uuid4()
+        token_dict = {
+            "token": token,
+            "time" : time.time()
+        }
+        token_add = await token_addition(master_hash, token_dict)
+        if token_add == "failure":
+            return LoginErrorSchema("Login Failed")
+        else:
+            return LoginResponseSchema(token)
+    else:
+        return LoginErrorSchema("Login Failed")
 
 
 app.add_middleware(

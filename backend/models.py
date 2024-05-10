@@ -214,7 +214,7 @@ def MFAErrorSchema(message):
     account_create_result - the error that occurred
     """
     mfa_error = {
-        "account_create_result" : message
+        "account_auth_result" : message
     }
 
     return mfa_error

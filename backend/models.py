@@ -114,7 +114,7 @@ def CreateResponseSchema(url):
     return create_response
 
 
-def MFAResponseSchema(url):
+def MFAResponseSchema():
     """
     Defines the dictionary reponse sent back as the response body for routes:
 

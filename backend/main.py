@@ -1,8 +1,8 @@
 from fastapi import FastAPI, status, Body
 from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
-from models import UserSchema, UserUpdate, HashSchema, EmailSchema, VaultSchema, MFASchema, LoginResponseSchema, AuthResponseSchema, CreateResponseSchema, MFAResponseSchema, UpdateResponseSchema, VaultResponseSchema, DeleteResponseSchema, LoginErrorSchema, AuthErrorSchema, CreateErrorSchema, MFAErrorSchema, UpdateErrorSchema, VaultErrorSchema, DeleteErrorSchema
-from database import add_user, mfa_user, find_user, auth_user, mfa_verify, find_vault, update_user, update_vault, delete_user
+from models import UserSchema, UserUpdate, HashSchema, TokenSchema, EmailSchema, VaultSchema, MFASchema, DeleteSchema, LoginResponseSchema, AuthResponseSchema, CreateResponseSchema, MFAResponseSchema, UpdateResponseSchema, VaultResponseSchema, DeleteResponseSchema, LoginErrorSchema, AuthErrorSchema, CreateErrorSchema, MFAErrorSchema, UpdateErrorSchema, VaultErrorSchema, DeleteErrorSchema
+from database import add_user, mfa_user, find_user_by_email, auth_user, mfa_verify, find_vault, update_user, update_vault, delete_user
 from token_authentication import TokenAuthenticator
 import time
 import uuid
@@ -57,14 +57,19 @@ async def mfa_login(mfa: MFASchema = Body(...)):
     
 
 @app.post(path="/get-vault/", status_code=status.HTTP_200_OK)
-async def get_vault(hash: HashSchema = Body(...)):
+async def get_vault(get_data: TokenSchema = Body(...)):
     """
     
     """
-    master_hash = jsonable_encoder(hash)
-    result = await auth_user(master_hash["hash"])
+    get_json = jsonable_encoder(get_data)
+    hash = get_json["hash"]
+    token = get_json["token"]
+    token_ver = await token_verification(hash, token)
+    if token_ver != "success":
+        return DeleteErrorSchema("Invalid token")
+    result = await auth_user(hash)
     if result == "success":
-        vault = await find_vault(master_hash["hash"])
+        vault = await find_vault(hash)
         if vault == "failure":
             AuthErrorSchema("Get Vault Failed")
         return AuthResponseSchema(vault)
@@ -107,9 +112,13 @@ async def user_update(user_data: UserUpdate = Body (...)):
     
     """
     user_json = jsonable_encoder(user_data)
-    hash = user_json["hash"]
+    email = user_json["email"]
+    user = await find_user_by_email(email)
+    if user == "failure":
+        return UpdateErrorSchema("Invalid token")
+    old_hash = user["hash"]
     token = user_json["token"]
-    token_ver = await token_verification(hash, token)
+    token_ver = await token_verification(old_hash, token)
     if token_ver != "success":
         return UpdateErrorSchema("Invalid token")
     result = await update_user(user_json)
@@ -131,6 +140,10 @@ async def vault_update(vault_data: VaultSchema = Body (...)):
     vault_json = jsonable_encoder(vault_data)
     hash = vault_json["hash"]
     vault = vault_json["vault"]
+    token = vault_json["token"]
+    token_ver = await token_verification(hash, token)
+    if token_ver != "success":
+        return VaultErrorSchema("Invalid token")
     result = await update_vault(hash, vault)
     if result == "failure to update vault":
         return VaultErrorSchema("Failure to Update Vault")
@@ -141,12 +154,17 @@ async def vault_update(vault_data: VaultSchema = Body (...)):
 
 
 @app.post(path="/account-delete/", status_code=status.HTTP_200_OK)
-async def user_delete(hash: HashSchema = Body(...)):
+async def user_delete(delete_data: DeleteSchema = Body(...)):
     """
     
     """
-    master_hash = jsonable_encoder(hash)
-    result = await delete_user(master_hash["hash"])
+    delete_json = jsonable_encoder(delete_data)
+    hash = delete_json["hash"]
+    token = delete_json["token"]
+    token_ver = await token_verification(hash, token)
+    if token_ver != "success":
+        return DeleteErrorSchema("Invalid token")
+    result = await delete_user(hash)
     if result == "failure to find user":
         return DeleteErrorSchema("Failure to Find User")
     if result == "failure to delete user":
@@ -187,7 +205,6 @@ async def token_addition(hash: str, token_dict: dict):
     if result != "success":
         return "failure"
     else:
-        print(tokens.data)
         return "success"
     
 
@@ -197,10 +214,8 @@ async def token_verification(hash: str, token: str):
     """
     result = await tokens.verify_token(hash, token)
     if result != "success":
-        print(tokens.data)
         return "failure"
     else:
-        print(tokens.data)
         return "success"
     
 
@@ -210,10 +225,8 @@ async def token_removal(hash):
     """
     result = await tokens.remove_token(hash)
     if result != "success":
-        print(tokens.data)
         return "failure"
     else:
-        print(tokens.data)
         return "success"
 
 

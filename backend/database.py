@@ -111,6 +111,16 @@ async def find_user(hash: str):
         return "failure"
     else:
         return user_helper(user)
+    
+async def find_user_by_email(email: str):
+    """
+    
+    """
+    user = await collection.find_one({"email": email})
+    if user is None:
+        return "failure"
+    else:
+        return user_helper(user)
 
 
 async def auth_user(hash: str):

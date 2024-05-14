@@ -41,6 +41,14 @@ class HashSchema(BaseModel):
     hash: str = Field(...)
 
 
+class TokenSchema(BaseModel):
+    """
+    Allows functions to parse request bodies that only include a vault
+    """
+    hash: str = Field(...)
+    token: str = Field(...)
+
+
 class EmailSchema(BaseModel):
     """
     Allows functions to parse request bodies that only include a hash
@@ -54,6 +62,7 @@ class VaultSchema(BaseModel):
     """
     hash: str = Field(...)
     vault: dict = Field(...)
+    token: str = Field(...)
 
 
 class MFASchema(BaseModel):
@@ -62,6 +71,14 @@ class MFASchema(BaseModel):
     """
     hash: str = Field(...)
     code: str = Field(...)
+
+
+class DeleteSchema(BaseModel):
+    """
+    Allows functions to parse request bodies that only include a vault
+    """
+    hash: str = Field(...)
+    token: str = Field(...)
 
 
 # Successful Response Schemas

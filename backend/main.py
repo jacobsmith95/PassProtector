@@ -1,7 +1,7 @@
 from fastapi import FastAPI, status, Body
 from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
-from models import UserSchema, UserUpdate, HashSchema, TokenSchema, EmailSchema, VaultSchema, MFASchema, DeleteSchema, LoginResponseSchema, AuthResponseSchema, CreateResponseSchema, MFAResponseSchema, UpdateResponseSchema, VaultResponseSchema, DeleteResponseSchema, LoginErrorSchema, AuthErrorSchema, CreateErrorSchema, MFAErrorSchema, UpdateErrorSchema, VaultErrorSchema, DeleteErrorSchema
+from models import UserSchema, UserUpdate, HashSchema, TokenSchema, EmailSchema, VaultSchema, MFASchema, DeleteSchema, LoginResponseSchema, AuthResponseSchema, CreateResponseSchema, MFAResponseSchema, UpdateResponseSchema, VaultResponseSchema, DeleteResponseSchema, LogoutResponseSchema, LoginErrorSchema, AuthErrorSchema, CreateErrorSchema, MFAErrorSchema, UpdateErrorSchema, VaultErrorSchema, DeleteErrorSchema, LogoutErrorSchema
 from database import add_user, mfa_user, find_user_by_email, auth_user, mfa_verify, find_vault, update_user, update_vault, delete_user
 from token_authentication import TokenAuthenticator
 import time
@@ -109,6 +109,7 @@ async def user_update(user_data: UserUpdate = Body (...)):
     """
     user_json = jsonable_encoder(user_data)
     email = user_json["email"]
+    new_hash = user_json["hash"]
     user = await find_user_by_email(email)
     if user == "failure":
         return UpdateErrorSchema("Invalid token")
@@ -117,6 +118,16 @@ async def user_update(user_data: UserUpdate = Body (...)):
     token_ver = await token_verification(old_hash, token)
     if token_ver != "success":
         return UpdateErrorSchema("Invalid token")
+    if new_hash != old_hash:
+        token_dict = await tokens.get_token_dict(old_hash)
+        if token_dict == "failure":
+            return UpdateErrorSchema("Invalid token")
+        token_add = await token_addition(new_hash, token_dict)
+        if token_add == "failure":
+            return UpdateErrorSchema("Invalid token")
+        token_rem = await token_removal(old_hash)
+        if token_rem == "failure":
+            return UpdateErrorSchema("Invalid token")
     result = await update_user(user_json)
     if result == "failure":
         return UpdateErrorSchema("Failure")
@@ -179,16 +190,16 @@ async def logout(logout_data: TokenSchema = Body(...)):
     token = logout_json["token"]
     token_ver = await token_verification(hash, token)
     if token_ver != "success":
-        return LoginErrorSchema("Invalid token")
+        return LogoutErrorSchema("Invalid token")
     result = await auth_user(hash)
     if result == "success":
         token_rem = await token_removal(hash)
         if token_rem == "failure":
-            return LoginErrorSchema("Login Failed")
+            return LogoutErrorSchema("Logout Failed")
         else:
-            return LoginResponseSchema(token)
+            return LogoutResponseSchema()
     else:
-        return LoginErrorSchema("Login Failed")
+        return LogoutErrorSchema("Logout Failed")
     
 
 # token functions

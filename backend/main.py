@@ -128,15 +128,16 @@ async def user_update(user_data: UserUpdate = Body (...)):
         token_rem = await token_removal(old_hash)
         if token_rem == "failure":
             return UpdateErrorSchema("Invalid token")
-    result = await update_user(user_json)
-    if result == "failure":
-        return UpdateErrorSchema("Failure")
-    if result == "failure to find user":
-        return UpdateErrorSchema("Failure to find User")
-    if result == "failure to update":
-        return UpdateErrorSchema("Failed to Update User")
-    elif result == "success":
-        return UpdateResponseSchema()
+    if token_ver == "success":
+        result = await update_user(user_json)
+        if result == "failure":
+            return UpdateErrorSchema("Failure")
+        if result == "failure to find user":
+            return UpdateErrorSchema("Failure to find User")
+        if result == "failure to update":
+            return UpdateErrorSchema("Failed to Update User")
+        elif result == "success":
+            return UpdateResponseSchema()
 
 
 @app.post(path="/vault-update/", status_code=status.HTTP_200_OK)

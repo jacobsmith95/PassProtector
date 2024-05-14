@@ -184,6 +184,19 @@ def DeleteResponseSchema():
     return delete_response
 
 
+def LogoutResponseSchema():
+    """
+    Defines the dictionary reponse sent back as the response body for routes:
+
+    logout_result - whether the operation resulted in success or not
+    """
+    logout_response = {
+        "logout_result" : "success",
+    }
+
+    return logout_response
+
+
 # Error Response Schema
 
 def LoginErrorSchema(message):
@@ -275,4 +288,17 @@ def DeleteErrorSchema(message):
     }
 
     return delete_error
+
+
+def LogoutErrorSchema(message):
+    """
+    Defines the dictionary error response sent back as the error body for routes:
+
+    login_result - the error that occurred
+    """
+    logout_error = {
+        "logout_result" : message
+    }
+
+    return logout_error
 

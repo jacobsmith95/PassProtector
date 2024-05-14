@@ -8,17 +8,17 @@ class TokenAuthenticator():
     def __init__(self) -> None:
         self.data = {}
 
-    def add_token(self, hash, auth_token_dict):
+    async def add_token(self, hash, auth_token_dict):
         self.data[f"{hash}"] = auth_token_dict
         return "success"
 
-    def remove_token(self, hash):
+    async def remove_token(self, hash):
         if hash not in self.data:
             return "failure"
         del self.data[f"{hash}"]
         return "success"
     
-    def get_token_dict(self, hash):
+    async def get_token_dict(self, hash):
         if hash not in self.data:
             return "failure"
         token_dict = self.data[f"{hash}"]

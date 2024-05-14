@@ -102,40 +102,6 @@ async def mfa_user(email: str):
     return url
 
 
-
-async def token_addition(hash: str, token_dict: dict):
-    """
-    
-    """
-    result = tokens.add_token(hash, token_dict)
-    if result != "success":
-        return "failure to add token"
-    else:
-        return "success"
-    
-
-async def token_verification(hash: str, token: str):
-    """
-    
-    """
-    result = tokens.verify_token(hash, token)
-    if result != "success":
-        return "failure to verify"
-    else:
-        return "success"
-    
-
-async def token_removal(hash):
-    """
-    
-    """
-    result = tokens.remove_token(hash)
-    if result != "success":
-        return "failure"
-    else:
-        return "success"
-
-
 async def find_user(hash: str):
     """
     

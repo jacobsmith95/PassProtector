@@ -2,7 +2,8 @@ from fastapi import FastAPI, status, Body
 from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
 from models import UserSchema, UserUpdate, HashSchema, EmailSchema, VaultSchema, MFASchema, LoginResponseSchema, AuthResponseSchema, CreateResponseSchema, MFAResponseSchema, UpdateResponseSchema, VaultResponseSchema, DeleteResponseSchema, LoginErrorSchema, AuthErrorSchema, CreateErrorSchema, MFAErrorSchema, UpdateErrorSchema, VaultErrorSchema, DeleteErrorSchema
-from database import add_user, mfa_user, token_addition, token_removal, token_verification, find_user, auth_user, mfa_verify, find_vault, update_user, update_vault, delete_user
+from database import add_user, mfa_user, find_user, auth_user, mfa_verify, find_vault, update_user, update_vault, delete_user
+from token_authentication import TokenAuthenticator
 import time
 import uuid
 import uvicorn
@@ -10,6 +11,9 @@ import os
 
 
 app = FastAPI()
+
+
+tokens = TokenAuthenticator()
 
 
 origins = [
@@ -25,16 +29,7 @@ async def login(hash: HashSchema = Body(...)):
     master_hash = jsonable_encoder(hash)
     result = await auth_user(master_hash["hash"])
     if result == "success":
-        token = uuid.uuid4()
-        token_dict = {
-            "token": token,
-            "time" : time.time()
-        }
-        token_add = await token_addition(master_hash, token_dict)
-        if token_add == "failure":
-            return LoginErrorSchema("Login Failed")
-        else:
-            return LoginResponseSchema(token)
+        return LoginResponseSchema()
     else:
         return LoginErrorSchema("Login Failed")
     
@@ -47,7 +42,16 @@ async def mfa_login(mfa: MFASchema = Body(...)):
     mfa_json = jsonable_encoder(mfa)
     result = await mfa_verify(mfa_json["hash"], mfa_json["code"])
     if result == "success":
-        return MFAResponseSchema()
+        token = str(uuid.uuid4())
+        token_dict = {
+            "token": token,
+            "time" : time.time()
+        }
+        token_add = await token_addition(mfa_json["hash"], token_dict)
+        if token_add == "success":
+            return MFAResponseSchema(token)
+        else:
+            return MFAErrorSchema("Failed to Verify")
     else:
         return MFAErrorSchema("Failed to Verify")
     
@@ -103,6 +107,11 @@ async def user_update(user_data: UserUpdate = Body (...)):
     
     """
     user_json = jsonable_encoder(user_data)
+    hash = user_json["hash"]
+    token = user_json["token"]
+    token_ver = await token_verification(hash, token)
+    if token_ver != "success":
+        return UpdateErrorSchema("Invalid token")
     result = await update_user(user_json)
     if result == "failure":
         return UpdateErrorSchema("Failure")
@@ -159,13 +168,53 @@ async def logout(hash: HashSchema = Body(...)):
             "token": token,
             "time" : time.time()
         }
-        token_add = await token_addition(master_hash, token_dict)
-        if token_add == "failure":
+        token_rem = await token_removal(master_hash, token_dict)
+        if token_rem == "failure":
             return LoginErrorSchema("Login Failed")
         else:
             return LoginResponseSchema(token)
     else:
         return LoginErrorSchema("Login Failed")
+    
+
+# token functions
+
+async def token_addition(hash: str, token_dict: dict):
+    """
+    
+    """
+    result = await tokens.add_token(hash, token_dict)
+    if result != "success":
+        return "failure"
+    else:
+        print(tokens.data)
+        return "success"
+    
+
+async def token_verification(hash: str, token: str):
+    """
+    
+    """
+    result = await tokens.verify_token(hash, token)
+    if result != "success":
+        print(tokens.data)
+        return "failure"
+    else:
+        print(tokens.data)
+        return "success"
+    
+
+async def token_removal(hash):
+    """
+    
+    """
+    result = await tokens.remove_token(hash)
+    if result != "success":
+        print(tokens.data)
+        return "failure"
+    else:
+        print(tokens.data)
+        return "success"
 
 
 app.add_middleware(

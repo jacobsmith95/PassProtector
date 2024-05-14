@@ -25,12 +25,13 @@ class UserUpdate(BaseModel):
     """
     The model for updating a user in the mongodb Users collection:
     
-    email - necessary
-    hash  - optional to update
-    token - optional to update
+    email - 
+    hash  - 
+    token - 
     """
     email: str = Field(...)
     hash: str = Field(...)
+    token: str = Field(...)
 
 
 class HashSchema(BaseModel):
@@ -65,18 +66,16 @@ class MFASchema(BaseModel):
 
 # Successful Response Schemas
 
-def LoginResponseSchema(token):
+def LoginResponseSchema():
     """
     Defines the dictionary reponse sent back as the response body for routes:
 
     login_result - whether the operation resulted in success or not
     login_body   - None
-    token        - the user's authentication token
     """
     login_response = {
         "login_result" : "success",
         "login_body"   : None,
-        "token"        : token
     }
 
     return login_response
@@ -114,14 +113,16 @@ def CreateResponseSchema(url):
     return create_response
 
 
-def MFAResponseSchema():
+def MFAResponseSchema(token):
     """
     Defines the dictionary reponse sent back as the response body for routes:
 
     account_auth_result - whether the operation resulted in success or not
+    token               - the user's authentication token
     """
     mfa_response = {
         "account_auth_result" : "success",
+        "token"        : token
     }
 
     return mfa_response

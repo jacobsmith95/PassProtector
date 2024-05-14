@@ -57,16 +57,12 @@ async def mfa_login(mfa: MFASchema = Body(...)):
     
 
 @app.post(path="/get-vault/", status_code=status.HTTP_200_OK)
-async def get_vault(get_data: TokenSchema = Body(...)):
+async def get_vault(get_data: HashSchema = Body(...)):
     """
     
     """
     get_json = jsonable_encoder(get_data)
     hash = get_json["hash"]
-    token = get_json["token"]
-    token_ver = await token_verification(hash, token)
-    if token_ver != "success":
-        return AuthErrorSchema("Invalid token")
     result = await auth_user(hash)
     if result == "success":
         vault = await find_vault(hash)

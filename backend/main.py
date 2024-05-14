@@ -66,7 +66,7 @@ async def get_vault(get_data: TokenSchema = Body(...)):
     token = get_json["token"]
     token_ver = await token_verification(hash, token)
     if token_ver != "success":
-        return DeleteErrorSchema("Invalid token")
+        return AuthErrorSchema("Invalid token")
     result = await auth_user(hash)
     if result == "success":
         vault = await find_vault(hash)
@@ -174,19 +174,19 @@ async def user_delete(delete_data: DeleteSchema = Body(...)):
     
 
 @app.post(path="/logout/", status_code=status.HTTP_200_OK)
-async def logout(hash: HashSchema = Body(...)):
+async def logout(logout_data: TokenSchema = Body(...)):
     """
     
     """
-    master_hash = jsonable_encoder(hash)
-    result = await auth_user(master_hash["hash"])
+    logout_json = jsonable_encoder(logout_data)
+    hash = logout_json["hash"]
+    token = logout_json["token"]
+    token_ver = await token_verification(hash, token)
+    if token_ver != "success":
+        return LoginErrorSchema("Invalid token")
+    result = await auth_user(hash)
     if result == "success":
-        token = uuid.uuid4()
-        token_dict = {
-            "token": token,
-            "time" : time.time()
-        }
-        token_rem = await token_removal(master_hash, token_dict)
+        token_rem = await token_removal(hash)
         if token_rem == "failure":
             return LoginErrorSchema("Login Failed")
         else:

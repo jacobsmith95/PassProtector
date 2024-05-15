@@ -16,7 +16,7 @@ app = FastAPI()
 tokens = TokenAuthenticator()
 
 
-#new_user_dict = None
+
 
 
 origins = [
@@ -78,7 +78,7 @@ async def get_vault(get_data: TokenSchema = Body(...)):
             if vault == "failure":
                 GetVaultErrorSchema("Get Vault Failed")
             return GetVaultResponseSchema(vault)
-        else:
+        if result != "success":
             return GetVaultErrorSchema("Find User Failed")
 
 
@@ -197,7 +197,11 @@ async def logout(logout_data: TokenSchema = Body(...)):
     token = logout_json["token"]
     token_ver = await token_verification(hash, token)
     if token_ver != "success":
-        return LogoutErrorSchema("Invalid token")
+        token_remove = await token_removal(hash)
+        if token_remove != "success":
+            return LogoutErrorSchema("Invalid token")
+        else:
+            return LogoutErrorSchema("Invalid token")
     result = await auth_user(hash)
     if result == "success":
         token_rem = await token_removal(hash)

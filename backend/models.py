@@ -62,6 +62,7 @@ class VaultSchema(BaseModel):
     """
     hash: str = Field(...)
     vault: dict = Field(...)
+    token: str = Field(...)
 
 
 class MFASchema(BaseModel):

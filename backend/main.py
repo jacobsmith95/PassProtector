@@ -151,13 +151,18 @@ async def vault_update(vault_data: VaultSchema = Body (...)):
     vault_json = jsonable_encoder(vault_data)
     hash = vault_json["hash"]
     vault = vault_json["vault"]
-    result = await update_vault(hash, vault)
-    if result == "failure to update vault":
-        return VaultErrorSchema("Failure to Update Vault")
-    if result == "failure to find user":
-        return VaultErrorSchema("Failure")
-    elif result == "success":
-        return VaultResponseSchema()
+    token = vault_json["token"]
+    token_ver = await token_verification(hash, token)
+    if token_ver != "success":
+        return VaultErrorSchema("Invalid token")
+    if token_ver == "success":
+        result = await update_vault(hash, vault)
+        if result == "failure to update vault":
+            return VaultErrorSchema("Failure to Update Vault")
+        if result == "failure to find user":
+            return VaultErrorSchema("Failure")
+        elif result == "success":
+            return VaultResponseSchema()
 
 
 @app.post(path="/account-delete/", status_code=status.HTTP_200_OK)

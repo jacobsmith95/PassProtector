@@ -130,6 +130,20 @@ def CreateResponseSchema(url):
     return create_response
 
 
+def CreateFAResponseSchema():
+    """
+    Defines the dictionary reponse sent back as the response body for routes:
+
+    account_create_result - whether the operation resulted in success or not
+    qr_link               - the url for the MFA qr code
+    """
+    create_fa_response = {
+        "account_auth_result" : "success",
+    }
+
+    return create_fa_response
+
+
 def MFAResponseSchema(token):
     """
     Defines the dictionary reponse sent back as the response body for routes:
@@ -236,6 +250,19 @@ def CreateErrorSchema(message):
     }
 
     return create_error
+
+
+def CreateFAErrorSchema(message):
+    """
+    Defines the dictionary error response sent back as the error body for routes:
+
+    account_create_result - the error that occurred
+    """
+    create_fa_error = {
+        "account_auth_result" : message
+    }
+
+    return create_fa_error
 
 
 def MFAErrorSchema(message):

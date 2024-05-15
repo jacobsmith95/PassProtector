@@ -1,7 +1,7 @@
 from fastapi import FastAPI, status, Body
 from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
-from models import UserSchema, UserUpdate, HashSchema, TokenSchema, EmailSchema, VaultSchema, MFASchema, DeleteSchema, LoginResponseSchema, AuthResponseSchema, CreateResponseSchema, MFAResponseSchema, UpdateResponseSchema, VaultResponseSchema, DeleteResponseSchema, LogoutResponseSchema, LoginErrorSchema, AuthErrorSchema, CreateErrorSchema, MFAErrorSchema, UpdateErrorSchema, VaultErrorSchema, DeleteErrorSchema, LogoutErrorSchema
+from models import UserSchema, UserUpdate, HashSchema, TokenSchema, EmailSchema, VaultSchema, MFASchema, DeleteSchema, LoginResponseSchema, AuthResponseSchema, CreateResponseSchema, CreateFAResponseSchema, MFAResponseSchema, UpdateResponseSchema, VaultResponseSchema, DeleteResponseSchema, LogoutResponseSchema, LoginErrorSchema, AuthErrorSchema, CreateErrorSchema, CreateFAErrorSchema, MFAErrorSchema, UpdateErrorSchema, VaultErrorSchema, DeleteErrorSchema, LogoutErrorSchema
 from database import add_user, mfa_user, find_user_by_email, auth_user, mfa_verify, find_vault, update_user, update_vault, delete_user
 from token_authentication import TokenAuthenticator
 import time
@@ -97,9 +97,9 @@ async def auth_create(mfa_schema: MFASchema = Body(...)):
     mfa_json = jsonable_encoder(mfa_schema)
     result = await mfa_verify(mfa_json["hash"], mfa_json["code"])
     if result == "success":
-        return MFAResponseSchema()
+        return CreateFAResponseSchema()
     else:
-        return MFAErrorSchema("Account Verification Failed")   
+        return CreateFAErrorSchema("Account Verification Failed")   
 
 
 @app.post(path="/account-update/", status_code=status.HTTP_200_OK)

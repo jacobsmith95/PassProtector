@@ -20,7 +20,8 @@ tokens = TokenAuthenticator()
 
 
 origins = [
-    "https://frontend-ngnhr6tt3a-ul.a.run.app"
+    # "https://frontend-ngnhr6tt3a-ul.a.run.app/"
+    "http://localhost:3000/"
 ]
 
 
@@ -60,20 +61,25 @@ async def mfa_login(mfa: MFASchema = Body(...)):
     
 
 @app.post(path="/get-vault/", status_code=status.HTTP_200_OK)
-async def get_vault(get_data: HashSchema = Body(...)):
+async def get_vault(get_data: TokenSchema = Body(...)):
     """
     
     """
     get_json = jsonable_encoder(get_data)
     hash = get_json["hash"]
-    result = await auth_user(hash)
-    if result == "success":
-        vault = await find_vault(hash)
-        if vault == "failure":
-            AuthErrorSchema("Get Vault Failed")
-        return AuthResponseSchema(vault)
-    else:
-        return AuthErrorSchema("Find User Failed")
+    token = get_json["token"]
+    token_ver = await token_verification(hash, token)
+    if token_ver != "success":
+        return AuthErrorSchema("Invalid token")
+    if token_ver == "success":
+        result = await auth_user(hash)
+        if result == "success":
+            vault = await find_vault(hash)
+            if vault == "failure":
+                AuthErrorSchema("Get Vault Failed")
+            return AuthResponseSchema(vault)
+        else:
+            return AuthErrorSchema("Find User Failed")
 
 
 @app.post(path="/account-create/", status_code=status.HTTP_201_CREATED)

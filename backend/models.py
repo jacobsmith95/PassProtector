@@ -62,7 +62,6 @@ class VaultSchema(BaseModel):
     """
     hash: str = Field(...)
     vault: dict = Field(...)
-    token: str = Field(...)
 
 
 class MFASchema(BaseModel):
@@ -78,7 +77,6 @@ class DeleteSchema(BaseModel):
     Allows functions to parse request bodies that only include a vault
     """
     hash: str = Field(...)
-    token: str = Field(...)
 
 
 # Successful Response Schemas

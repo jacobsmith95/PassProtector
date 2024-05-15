@@ -16,6 +16,9 @@ app = FastAPI()
 tokens = TokenAuthenticator()
 
 
+#new_user_dict = None
+
+
 origins = [
     "https://frontend-ngnhr6tt3a-ul.a.run.app"
 ]
@@ -148,10 +151,6 @@ async def vault_update(vault_data: VaultSchema = Body (...)):
     vault_json = jsonable_encoder(vault_data)
     hash = vault_json["hash"]
     vault = vault_json["vault"]
-    token = vault_json["token"]
-    token_ver = await token_verification(hash, token)
-    if token_ver != "success":
-        return VaultErrorSchema("Invalid token")
     result = await update_vault(hash, vault)
     if result == "failure to update vault":
         return VaultErrorSchema("Failure to Update Vault")
@@ -168,10 +167,6 @@ async def user_delete(delete_data: DeleteSchema = Body(...)):
     """
     delete_json = jsonable_encoder(delete_data)
     hash = delete_json["hash"]
-    token = delete_json["token"]
-    token_ver = await token_verification(hash, token)
-    if token_ver != "success":
-        return DeleteErrorSchema("Invalid token")
     result = await delete_user(hash)
     if result == "failure to find user":
         return DeleteErrorSchema("Failure to Find User")

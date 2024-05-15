@@ -97,7 +97,7 @@ def LoginResponseSchema():
     return login_response
 
 
-def AuthResponseSchema(vault):
+def GetVaultResponseSchema(vault):
     """
     Defines the dictionary reponse sent back as the response body for routes:
 
@@ -105,13 +105,12 @@ def AuthResponseSchema(vault):
     login_body      - None
     encrypted vault - the user's encrypted vault and IV
     """
-    auth_response = {
-        "login_result"    : "success",
-        "login_body"      : None,
-        "encrypted_vault" : vault
+    get_vault_response = {
+        "get_vault_result" : "success",
+        "encrypted_vault"  : vault
     }
 
-    return auth_response
+    return get_vault_response
 
 
 def CreateResponseSchema(url):
@@ -225,17 +224,17 @@ def LoginErrorSchema(message):
     return login_error
 
 
-def AuthErrorSchema(message):
+def GetVaultErrorSchema(message):
     """
     Defines the dictionary error response sent back as the error body for routes:
 
     auth_result - the error that occurred
     """
-    auth_error = {
-        "auth_result" : message
+    get_vault_error = {
+        "get_vault_result" : message
     }
 
-    return auth_error
+    return get_vault_error
 
 
 def CreateErrorSchema(message):

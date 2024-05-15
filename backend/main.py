@@ -1,7 +1,7 @@
 from fastapi import FastAPI, status, Body
 from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
-from models import UserSchema, UserUpdate, HashSchema, TokenSchema, EmailSchema, VaultSchema, MFASchema, DeleteSchema, LoginResponseSchema, AuthResponseSchema, CreateResponseSchema, CreateFAResponseSchema, MFAResponseSchema, UpdateResponseSchema, VaultResponseSchema, DeleteResponseSchema, LogoutResponseSchema, LoginErrorSchema, AuthErrorSchema, CreateErrorSchema, CreateFAErrorSchema, MFAErrorSchema, UpdateErrorSchema, VaultErrorSchema, DeleteErrorSchema, LogoutErrorSchema
+from models import UserSchema, UserUpdate, HashSchema, TokenSchema, EmailSchema, VaultSchema, MFASchema, DeleteSchema, LoginResponseSchema, GetVaultResponseSchema, CreateResponseSchema, CreateFAResponseSchema, MFAResponseSchema, UpdateResponseSchema, VaultResponseSchema, DeleteResponseSchema, LogoutResponseSchema, LoginErrorSchema, GetVaultErrorSchema, CreateErrorSchema, CreateFAErrorSchema, MFAErrorSchema, UpdateErrorSchema, VaultErrorSchema, DeleteErrorSchema, LogoutErrorSchema
 from database import add_user, mfa_user, find_user_by_email, auth_user, mfa_verify, find_vault, update_user, update_vault, delete_user
 from token_authentication import TokenAuthenticator
 import time
@@ -70,16 +70,16 @@ async def get_vault(get_data: TokenSchema = Body(...)):
     token = get_json["token"]
     token_ver = await token_verification(hash, token)
     if token_ver != "success":
-        return AuthErrorSchema("Invalid token")
+        return GetVaultErrorSchema("Invalid token")
     if token_ver == "success":
         result = await auth_user(hash)
         if result == "success":
             vault = await find_vault(hash)
             if vault == "failure":
-                AuthErrorSchema("Get Vault Failed")
-            return AuthResponseSchema(vault)
+                GetVaultErrorSchema("Get Vault Failed")
+            return GetVaultResponseSchema(vault)
         else:
-            return AuthErrorSchema("Find User Failed")
+            return GetVaultErrorSchema("Find User Failed")
 
 
 @app.post(path="/account-create/", status_code=status.HTTP_201_CREATED)

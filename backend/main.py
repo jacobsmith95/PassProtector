@@ -61,7 +61,7 @@ async def mfa_login(mfa: MFASchema = Body(...)):
     if result == "success":
         token_ver = await login_token_verification(hash, token)
         if token_ver == "failure":
-           return MFAErrorSchema("Failed to Verify")
+           return MFAErrorSchema("Invalid token")
         if token_ver == "success":
            token_switch = await switch_tokens(hash)
            if token_switch == "failure":

@@ -1,7 +1,7 @@
 from fastapi import FastAPI, status, Body
 from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
-from models import UserSchema, UserUpdate, HashSchema, TokenSchema, EmailSchema, VaultSchema, MFASchema, DeleteSchema, LoginResponseSchema, GetVaultResponseSchema, CreateResponseSchema, CreateFAResponseSchema, MFAResponseSchema, UpdateResponseSchema, VaultResponseSchema, DeleteResponseSchema, LogoutResponseSchema, LoginErrorSchema, GetVaultErrorSchema, CreateErrorSchema, CreateFAErrorSchema, MFAErrorSchema, UpdateErrorSchema, VaultErrorSchema, DeleteErrorSchema, LogoutErrorSchema
+from models import UserSchema, UserUpdate, HashSchema, TokenSchema, EmailSchema, VaultSchema, MFASchema, MFACreateSchema, DeleteSchema, LoginResponseSchema, GetVaultResponseSchema, CreateResponseSchema, CreateFAResponseSchema, MFAResponseSchema, UpdateResponseSchema, VaultResponseSchema, DeleteResponseSchema, LogoutResponseSchema, LoginErrorSchema, GetVaultErrorSchema, CreateErrorSchema, CreateFAErrorSchema, MFAErrorSchema, UpdateErrorSchema, VaultErrorSchema, DeleteErrorSchema, LogoutErrorSchema
 from database import add_user, mfa_user, find_user_by_email, auth_user, mfa_verify, find_vault, update_user, update_vault, delete_user
 from token_authentication import TokenAuthenticator
 import time
@@ -111,7 +111,7 @@ async def create_user(user: UserSchema = Body(...)):
     
 
 @app.post(path="/auth-create/", status_code=status.HTTP_200_OK)
-async def auth_create(mfa_schema: MFASchema = Body(...)):
+async def auth_create(mfa_schema: MFACreateSchema = Body(...)):
     """
     
     """

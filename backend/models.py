@@ -74,6 +74,14 @@ class MFASchema(BaseModel):
     token: str = Field(...)
 
 
+class MFACreateSchema(BaseModel):
+    """
+    Allows functions to parse request bodies that only include a hash
+    """
+    hash: str = Field(...)
+    code: str = Field(...)
+
+
 class DeleteSchema(BaseModel):
     """
     Allows functions to parse request bodies that only include a vault

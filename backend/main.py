@@ -69,7 +69,7 @@ async def mfa_login(mfa: MFASchema = Body(...)):
            if token_switch == "success":
                return MFAResponseSchema()
     else:
-        return MFAErrorSchema("Failed to Verify")
+        return MFAErrorSchema("MFA code is incorrect")
     
 
 @app.post(path="/get-vault/", status_code=status.HTTP_200_OK)

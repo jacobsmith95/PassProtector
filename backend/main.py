@@ -16,7 +16,7 @@ app = FastAPI()
 tokens = TokenAuthenticator()
 
 
-
+login_tokens = TokenAuthenticator()
 
 
 origins = [
@@ -31,9 +31,19 @@ async def login(hash: HashSchema = Body(...)):
     
     """
     master_hash = jsonable_encoder(hash)
-    result = await auth_user(master_hash["hash"])
+    hash = master_hash["hash"]
+    result = await auth_user(hash)
     if result == "success":
-        return LoginResponseSchema()
+        token = str(uuid.uuid4())
+        token_dict = {
+            "token": token,
+            "time" : time.time()
+        }
+        token_add = await login_token_addition(hash, token_dict)
+        if token_add == "success":
+            return LoginResponseSchema(token)
+        else:
+            return LoginErrorSchema("Login Failed")
     else:
         return LoginErrorSchema("Login Failed")
     
@@ -128,24 +138,22 @@ async def user_update(user_data: UserUpdate = Body (...)):
     if token_ver != "success":
         return UpdateErrorSchema("Invalid token")
     if new_hash != old_hash:
-        token_dict = await tokens.get_token_dict(old_hash)
+        token_dict = await token_data(old_hash)
         if token_dict == "failure":
             return UpdateErrorSchema("Invalid token")
-        token_add = await token_addition(new_hash, token_dict)
-        if token_add == "failure":
-            return UpdateErrorSchema("Invalid token")
-        token_rem = await token_removal(old_hash)
-        if token_rem == "failure":
-            return UpdateErrorSchema("Invalid token")
+        else:
+            token_add = await token_addition(new_hash, token_dict)
+            if token_add == "failure":
+                return UpdateErrorSchema("Invalid token")
+            else:
+                token_rem = await token_removal(old_hash)
+                if token_rem == "failure":
+                    return UpdateErrorSchema("Invalid token")
     if token_ver == "success":
         result = await update_user(user_json)
-        if result == "failure":
+        if result != "success":
             return UpdateErrorSchema("Failure")
-        if result == "failure to find user":
-            return UpdateErrorSchema("Failure to find User")
-        if result == "failure to update":
-            return UpdateErrorSchema("Failed to Update User")
-        elif result == "success":
+        if result == "success":
             return UpdateResponseSchema()
 
 
@@ -226,6 +234,17 @@ async def token_addition(hash: str, token_dict: dict):
         return "success"
     
 
+async def token_data(hash: str):
+    """
+    
+    """
+    result = await tokens.get_token_dict(hash)
+    if result == "failure":
+        return "failure"
+    else:
+        return result
+    
+
 async def token_verification(hash: str, token: str):
     """
     
@@ -237,7 +256,7 @@ async def token_verification(hash: str, token: str):
         return "success"
     
 
-async def token_removal(hash):
+async def token_removal(hash: str):
     """
     
     """
@@ -246,6 +265,70 @@ async def token_removal(hash):
         return "failure"
     else:
         return "success"
+    
+
+async def login_token_addition(hash: str, token_dict: dict):
+    """
+    
+    """
+    result = await login_tokens.add_token(hash, token_dict)
+    if result != "success":
+        return "failure"
+    else:
+        return "success"
+    
+
+async def login_token_data(hash: str):
+    """
+    
+    """
+    result = await login_tokens.get_token_dict(hash)
+    if result == "failure":
+        return "failure"
+    else:
+        return result
+    
+
+async def login_token_verification(hash: str, token: str):
+    """
+    
+    """
+    result = await login_tokens.verify_token(hash, token)
+    if result != "success":
+        return "failure"
+    else:
+        return "success"
+    
+
+async def login_token_removal(hash: str):
+    """
+    
+    """
+    result = await login_tokens.remove_token(hash)
+    if result != "success":
+        return "failure"
+    else:
+        return "success"
+    
+
+async def switch_tokens(hash: str):
+    """
+    
+    """
+    token_dict = await login_token_data(hash)
+    if token_dict == "failure":
+        return "failure"
+    else:
+        add_token = await token_addition(hash, token_dict)
+        if add_token == "failure":
+            return "failure"
+        if add_token == "success":
+            remove_token = await login_token_removal(hash)
+            if remove_token == "failure":
+                return "failure"
+            if remove_token == "success":
+                return "success"
+
 
 
 app.add_middleware(

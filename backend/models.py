@@ -82,16 +82,18 @@ class DeleteSchema(BaseModel):
 
 # Successful Response Schemas
 
-def LoginResponseSchema():
+def LoginResponseSchema(token):
     """
     Defines the dictionary reponse sent back as the response body for routes:
 
     login_result - whether the operation resulted in success or not
     login_body   - None
+    token        - the user's authentication token
     """
     login_response = {
         "login_result" : "success",
         "login_body"   : None,
+        "token"        : token
     }
 
     return login_response

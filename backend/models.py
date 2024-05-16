@@ -71,6 +71,7 @@ class MFASchema(BaseModel):
     """
     hash: str = Field(...)
     code: str = Field(...)
+    token: str = Field(...)
 
 
 class DeleteSchema(BaseModel):
@@ -144,7 +145,7 @@ def CreateFAResponseSchema():
     return create_fa_response
 
 
-def MFAResponseSchema(token):
+def MFAResponseSchema():
     """
     Defines the dictionary reponse sent back as the response body for routes:
 
@@ -153,7 +154,6 @@ def MFAResponseSchema(token):
     """
     mfa_response = {
         "account_auth_result" : "success",
-        "token"        : token
     }
 
     return mfa_response

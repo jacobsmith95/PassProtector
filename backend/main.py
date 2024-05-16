@@ -21,7 +21,7 @@ login_tokens = TokenAuthenticator()
 
 origins = [
     # "https://frontend-ngnhr6tt3a-ul.a.run.app/"
-    "http://localhost:3000/"
+    "http://localhost:3000"
 ]
 
 
@@ -54,18 +54,20 @@ async def mfa_login(mfa: MFASchema = Body(...)):
     
     """
     mfa_json = jsonable_encoder(mfa)
-    result = await mfa_verify(mfa_json["hash"], mfa_json["code"])
+    hash = mfa_json["hash"]
+    code = mfa_json["code"]
+    token = mfa_json["token"]
+    result = await mfa_verify(hash, code)
     if result == "success":
-        token = str(uuid.uuid4())
-        token_dict = {
-            "token": token,
-            "time" : time.time()
-        }
-        token_add = await token_addition(mfa_json["hash"], token_dict)
-        if token_add == "success":
-            return MFAResponseSchema(token)
-        else:
-            return MFAErrorSchema("Failed to Verify")
+        token_ver = await login_token_verification(hash, token)
+        if token_ver == "failure":
+           return MFAErrorSchema("Failed to Verify")
+        if token_ver == "success":
+           token_switch = await switch_tokens(hash)
+           if token_switch == "failure":
+               return MFAErrorSchema("Failed to Verify") 
+           if token_switch == "success":
+               return MFAResponseSchema()
     else:
         return MFAErrorSchema("Failed to Verify")
     

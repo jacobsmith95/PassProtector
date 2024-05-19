@@ -25,12 +25,13 @@ class UserUpdate(BaseModel):
     """
     The model for updating a user in the mongodb Users collection:
     
-    email - necessary
-    hash  - optional to update
-    token - optional to update
+    email - 
+    hash  - 
+    token - 
     """
     email: str = Field(...)
     hash: str = Field(...)
+    token: str = Field(...)
 
 
 class HashSchema(BaseModel):
@@ -38,6 +39,14 @@ class HashSchema(BaseModel):
     Allows functions to parse request bodies that only include a hash
     """
     hash: str = Field(...)
+
+
+class TokenSchema(BaseModel):
+    """
+    Allows functions to parse request bodies that only include a vault
+    """
+    hash: str = Field(...)
+    token: str = Field(...)
 
 
 class EmailSchema(BaseModel):
@@ -53,6 +62,7 @@ class VaultSchema(BaseModel):
     """
     hash: str = Field(...)
     vault: dict = Field(...)
+    token: str = Field(...)
 
 
 class MFASchema(BaseModel):
@@ -61,6 +71,22 @@ class MFASchema(BaseModel):
     """
     hash: str = Field(...)
     code: str = Field(...)
+    token: str = Field(...)
+
+
+class MFACreateSchema(BaseModel):
+    """
+    Allows functions to parse request bodies that only include a hash
+    """
+    hash: str = Field(...)
+    code: str = Field(...)
+
+
+class DeleteSchema(BaseModel):
+    """
+    Allows functions to parse request bodies that only include a vault
+    """
+    hash: str = Field(...)
 
 
 # Successful Response Schemas
@@ -82,7 +108,7 @@ def LoginResponseSchema(token):
     return login_response
 
 
-def AuthResponseSchema(vault):
+def GetVaultResponseSchema(vault):
     """
     Defines the dictionary reponse sent back as the response body for routes:
 
@@ -90,13 +116,12 @@ def AuthResponseSchema(vault):
     login_body      - None
     encrypted vault - the user's encrypted vault and IV
     """
-    auth_response = {
-        "login_result"    : "success",
-        "login_body"      : None,
-        "encrypted_vault" : vault
+    get_vault_response = {
+        "get_vault_result" : "success",
+        "encrypted_vault"  : vault
     }
 
-    return auth_response
+    return get_vault_response
 
 
 def CreateResponseSchema(url):
@@ -114,11 +139,26 @@ def CreateResponseSchema(url):
     return create_response
 
 
+def CreateFAResponseSchema():
+    """
+    Defines the dictionary reponse sent back as the response body for routes:
+
+    account_create_result - whether the operation resulted in success or not
+    qr_link               - the url for the MFA qr code
+    """
+    create_fa_response = {
+        "account_auth_result" : "success",
+    }
+
+    return create_fa_response
+
+
 def MFAResponseSchema():
     """
     Defines the dictionary reponse sent back as the response body for routes:
 
     account_auth_result - whether the operation resulted in success or not
+    token               - the user's authentication token
     """
     mfa_response = {
         "account_auth_result" : "success",
@@ -166,6 +206,19 @@ def DeleteResponseSchema():
     return delete_response
 
 
+def LogoutResponseSchema():
+    """
+    Defines the dictionary reponse sent back as the response body for routes:
+
+    logout_result - whether the operation resulted in success or not
+    """
+    logout_response = {
+        "logout_result" : "success",
+    }
+
+    return logout_response
+
+
 # Error Response Schema
 
 def LoginErrorSchema(message):
@@ -181,17 +234,17 @@ def LoginErrorSchema(message):
     return login_error
 
 
-def AuthErrorSchema(message):
+def GetVaultErrorSchema(message):
     """
     Defines the dictionary error response sent back as the error body for routes:
 
     auth_result - the error that occurred
     """
-    auth_error = {
-        "auth_result" : message
+    get_vault_error = {
+        "get_vault_result" : message
     }
 
-    return auth_error
+    return get_vault_error
 
 
 def CreateErrorSchema(message):
@@ -205,6 +258,19 @@ def CreateErrorSchema(message):
     }
 
     return create_error
+
+
+def CreateFAErrorSchema(message):
+    """
+    Defines the dictionary error response sent back as the error body for routes:
+
+    account_create_result - the error that occurred
+    """
+    create_fa_error = {
+        "account_auth_result" : message
+    }
+
+    return create_fa_error
 
 
 def MFAErrorSchema(message):
@@ -257,4 +323,17 @@ def DeleteErrorSchema(message):
     }
 
     return delete_error
+
+
+def LogoutErrorSchema(message):
+    """
+    Defines the dictionary error response sent back as the error body for routes:
+
+    login_result - the error that occurred
+    """
+    logout_error = {
+        "logout_result" : message
+    }
+
+    return logout_error
 

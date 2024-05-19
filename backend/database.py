@@ -102,45 +102,21 @@ async def mfa_user(email: str):
     return url
 
 
-
-async def token_addition(hash: str, token_dict: dict):
-    """
-    
-    """
-    result = tokens.add_token(hash, token_dict)
-    if result != "success":
-        return "failure to add token"
-    else:
-        return "success"
-    
-
-async def token_verification(hash: str, token: str):
-    """
-    
-    """
-    result = tokens.verify_token(hash, token)
-    if result != "success":
-        return "failure to verify"
-    else:
-        return "success"
-    
-
-async def token_removal(hash):
-    """
-    
-    """
-    result = tokens.remove_token(hash)
-    if result != "success":
-        return "failure"
-    else:
-        return "success"
-
-
 async def find_user(hash: str):
     """
     
     """
     user = await collection.find_one({"hash": hash})
+    if user is None:
+        return "failure"
+    else:
+        return user_helper(user)
+    
+async def find_user_by_email(email: str):
+    """
+    
+    """
+    user = await collection.find_one({"email": email})
     if user is None:
         return "failure"
     else:
@@ -162,6 +138,8 @@ async def mfa_verify(hash: str, mfa_code: str):
     
     """
     user = await collection.find_one({"hash": hash})
+    if user is None:
+        return "failure"
     user_dict = user_helper(user)
     secret = user_dict["token"]
     result = verify(secret, mfa_code)

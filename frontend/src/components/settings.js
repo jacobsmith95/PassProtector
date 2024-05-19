@@ -3,10 +3,22 @@ import axios from 'axios';
 import { deployTarget, axiosConfigPost } from "../configs.js"
 import { generateMasterKey } from "./frontend-encryption.js";
 import { AuthObject } from "../auth/authWrapper.js";
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import SaveIcon from '@mui/icons-material/Save';
+import CancelIcon from '@mui/icons-material/Cancel';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 
 export const Settings = () => {
 
-    const { email, password, setPassword, masterHash, setMasterHash, setMasterKey, user, setUser} = AuthObject()
+    const { email, password, token, setPassword, masterHash, setMasterHash, setMasterKey, user, setUser, logout} = AuthObject()
+
+    const [showPW, setShowPW] = useState(false)
+
+    const togglePW = () => {
+        setShowPW(!showPW);
+    };
 
     const editAccount = (user) => {
 
@@ -15,11 +27,14 @@ export const Settings = () => {
         setMasterHash(masterValues.masterHash)
         const masterHashNew = masterValues.masterHash
     
-        axios.post(`${deployTarget}/account-update/`, {'email': user.email, 'hash': masterHashNew}, axiosConfigPost)
+        axios.post(`${deployTarget}/account-update/`, {'email': user.email, 'hash': masterHashNew, 'token': token}, axiosConfigPost)
         .then(res => {
              if (res.data.account_update_result === "success") {
                 setPassword(user.password)
                 window.alert("Account updated");
+             } else if (res.data.account_update_result === "Invalid token") {
+                window.alert("Invalid token");
+                logout() 
              } else {
                 window.alert("Error, Account not updated");
              }
@@ -29,7 +44,7 @@ export const Settings = () => {
 
     useEffect(() => {
         showList()
-    }, [password])
+    }, [password, showPW])
 
     const deleteUser = () => {
 
@@ -45,7 +60,7 @@ export const Settings = () => {
     }
 
     const showList = () => {
-        setContent(< UserData email={email} password={password} showForm={showForm} editAccount={editAccount} deleteUser={deleteUser} />)
+        setContent(< UserData email={email} password={password} showForm={showForm} editAccount={editAccount} deleteUser={deleteUser} showPW={showPW} togglePW={togglePW} />)
     }
 
     const showForm = (user) => {
@@ -69,7 +84,7 @@ const UserData = (props) => {
         <div className="text-left button-padding-left">
         </div>
 
-        <table className="table table-striped text-left w-75">
+        <table className="table table-striped text-left w-50">
             <thead className="table-dark">
                 <tr>
                     <th>Email</th>
@@ -80,10 +95,13 @@ const UserData = (props) => {
             <tbody> 
                 <tr>
                 <td>{props.email}</td>
-                <td>{props.password}</td>                     
+                <td>
+                {props.showPW ? props.password : "**************"}
+                <button onClick= {() => props.togglePW()} type="button" className="btn border-0 ml-4" title={props.showPW ? "Hide password" : "Show password"}>{props.showPW ? <VisibilityOffIcon /> : <VisibilityIcon /> }</button>                
+                </td>                     
                 <td style={{width:"10px", whiteSpace:"nowrap"}}>
-                <button onClick={() => props.showForm(props.email, props.password)} type="button" className="btn btn-primary btn-lg me-2">Edit</button>
-                <button onClick= {() => props.deleteUser()} type="button" className="btn btn-danger btn-lg">Delete</button>
+                    <button onClick={() => props.showForm(props.email, props.password)} type="button" className="btn btn-warning btn-lg mx-2" title="Edit user"><EditIcon /> </button>
+                    <button onClick= {() => props.deleteUser()} type="button" className="btn btn-danger btn-lg" title="Delete user"> <DeleteIcon /></button>
                 </td>                                                                         
                 </tr>
             </tbody>
@@ -132,8 +150,8 @@ const UserForm = (props) => {
         </div>
 
         <div>
-        <button type="submit" className="btn btn-primary btn-lg me-2">Save</button>
-        <button onClick={() => props.showList()} type="button" className="btn btn-secondary btn-lg">Cancel</button>
+        <button type="submit" className="btn btn-primary btn-lg me-4" title="Save"><SaveIcon/> </button>
+        <button onClick={() => props.showList()} type="button" className="btn btn-dark btn-lg" title="Cancel"><CancelIcon /></button>
         </div>
         </form>
     </div> 

@@ -1,14 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { QRCode } from 'react-qrcode-logo';
 import axios from 'axios';
 import { deployTarget, axiosConfigPost } from "../configs.js"
 import { generateMasterKey, encryptVault } from "./frontend-encryption.js";
-// import { GeneratePW } from "./generate_pw.js"
+import { GeneratePW } from "./generate_pw.js"
 
 export const CreateAccount = () => {
 
-    // const [genPW, setGenPW] = useState(null)
+    // const [genPW, setGenPW] = useState('')
 
     const navigate = useNavigate();
 
@@ -17,11 +17,11 @@ export const CreateAccount = () => {
         const masterValues = generateMasterKey(email, password)
         const masterHash = masterValues.masterHash
         const masterKey = masterValues.masterKey
-        console.log(masterHash)
+        console.log('Create user hash:' + masterHash)
 
         const encrypted_vault = encryptVault(masterKey, [])
 
-        axios.post(`${deployTarget}/account-create/`, {'email': email, 'hash': masterHash, 'token': "Test token", 'vault': encrypted_vault}, axiosConfigPost)
+        axios.post(`${deployTarget}/account-create/`, {'email': email, 'hash': masterHash, 'token': "Jacob hates FE dev", 'vault': encrypted_vault}, axiosConfigPost)
         .then(res => {
             if (res.data.account_create_result === "success") {
                 const qr_link = res.data.qr_link
@@ -46,23 +46,26 @@ export const CreateAccount = () => {
 
    }
 
-    // const handleGenPW = () => {
-    //     setGenPW(GeneratePW())
-        // if ( genPW ) {
-        //     navigator.clipboard.writeText(genPW_copy)
-        //     alert("Copied the text: " + genPW);
-        // }
-    // }
+    const handleGenPW = () => {
+        const pw = GeneratePW()
+        navigator.clipboard.writeText(pw);
+        alert('Copied to clipboard:\n\n' + pw);
+    }
+
+    // useEffect(() => {
+    //     showAccountCreateForm()
+    // }, [genPW])
+
 
     const showAccountCreateForm = () => {
-        setContent(< AccountCreateForm showMFA={showMFA} createAccountHandler={createAccountHandler} />)
+        setContent(< AccountCreateForm showMFA={showMFA} createAccountHandler={createAccountHandler} handleGenPW={handleGenPW}/>)
     }
 
     const showMFA = (qr_link, masterHash) => {
         setContent(< MFAForm showAccountCreateForm={showAccountCreateForm} MFAHandler={MFAHandler} qr_link={qr_link} masterHash={masterHash} />)
     }
     
-    const [content, setContent] = useState(< AccountCreateForm showMFA={showMFA} createAccountHandler={createAccountHandler} />)
+    const [content, setContent] = useState(< AccountCreateForm showMFA={showMFA} createAccountHandler={createAccountHandler} handleGenPW={handleGenPW} />)
     
     return (
         <div className="container my-5">
@@ -86,9 +89,10 @@ const AccountCreateForm = (props) => {
                     document.getElementById("password_id").value
                 )}>Create Account</button>
                 <br></br>
-                {/* <button className="btn btn-primary btn-lg" onClick={() => {handleGenPW()}}>Generate Password</button>
-                <br></br>
-                <div>{genPW}</div> */}
+                <hr className="mt-4 mb-3 hr-len"/>
+                <button className="btn btn-outline-primary btn-lg my-2" onClick={() => {props.handleGenPW()}}>Generate Password</button>
+                {/* <div><input className="input" type="gen_pw" id="gen_pw_id" placeholder={props.genPW} /></div>
+                <button className="btn btn-primary btn-lg my-2" onClick={() => {props.handlePWcopy(props.genPW)}}>Copy Password</button> */}
             </div>            
         </div>
      )

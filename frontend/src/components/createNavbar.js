@@ -1,7 +1,20 @@
 import { Link, Route, Routes, useLocation } from "react-router-dom";
 import { AuthObject } from "../auth/authWrapper.js";
 import { nav } from "./navbarData.js";
-   
+import LockIcon from '@mui/icons-material/Lock';
+import LockOpenIcon from '@mui/icons-material/LockOpen';
+
+export const TopHeader = () => {
+     return (
+          
+     <div className='topHeader' >
+          <div className="vaultIcon me-4"> <LockOpenIcon /> </div>
+          <div className="me-4"> Secure Password Manager </div>
+          <div className="vaultIcon"> <LockIcon /> </div>
+     </div>
+     )
+}
+
 export const CreateLinks = () => {
 
      const pageURL = useLocation();
@@ -15,6 +28,7 @@ export const CreateLinks = () => {
      }
 
      return (
+          
           <div className="links">
           {/* <div className="navbar navbar-dark bg-dark" */}
                { nav.map((r, i) => {

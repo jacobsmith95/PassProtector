@@ -3,10 +3,30 @@ import axios from 'axios';
 import { deployTarget, axiosConfigPost } from "../configs.js"
 import { AuthObject } from "../auth/authWrapper.js";
 import { encryptVault } from "../components/frontend-encryption.js";
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import SaveIcon from '@mui/icons-material/Save';
+import CancelIcon from '@mui/icons-material/Cancel';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import AddIcon from '@mui/icons-material/Add';
 
 export const Vault = () => {
 
-    const { vaultDecrypted, setVaultDecrypted, masterHash, masterKey } = AuthObject()
+    const { token, masterKey, masterHash, vaultDecrypted, setVaultDecrypted, logout, vaultExists } = AuthObject()
+
+    vaultDecrypted.map(vaultCurr => ({...vaultCurr, 'showPW': false}))
+
+    const togglePW = (item) => {
+        let obj = {...item, showPW: !item.showPW};
+        const currentVaultIndex = vaultDecrypted.findIndex((elem) => elem.ID === parseInt(item.ID));
+        const newVault = [
+            ...vaultDecrypted.slice(0, currentVaultIndex),
+            obj,
+            ...vaultDecrypted.slice(currentVaultIndex + 1, vaultDecrypted.length)
+        ];
+        setVaultDecrypted(newVault)
+    };
 
     const addItem = (item) => {
         let obj = { 
@@ -49,7 +69,7 @@ export const Vault = () => {
     }, [vaultDecrypted])
 
     const showList = () => {
-        setContent(< VaultList vaultDecrypted={vaultDecrypted} showForm={showForm} editItem={editItem} deleteItem={deleteItem} saveVault={saveVault}/>)
+        setContent(< VaultList vaultDecrypted={vaultDecrypted} showForm={showForm} editItem={editItem} deleteItem={deleteItem} saveVault={saveVault} togglePW={togglePW} />)
     }
 
     const showForm = (item) => {
@@ -57,24 +77,37 @@ export const Vault = () => {
     }
     
     const saveVault = () => {       
-        const encrypted_vault = encryptVault(masterKey, vaultDecrypted)
-        axios.post(`${deployTarget}/vault-update/`, {'hash': masterHash, 'vault': encrypted_vault}, axiosConfigPost)
+ 
+        let vaultDecryptedDelShowPW = [...vaultDecrypted]
+        vaultDecryptedDelShowPW.forEach((obj) => {
+            delete obj.showPW;
+        });
+
+        const encrypted_vault = encryptVault(masterKey, vaultDecryptedDelShowPW)
+        axios.post(`${deployTarget}/vault-update/`, {'hash': masterHash, 'vault': encrypted_vault, 'token': token }, axiosConfigPost)
         .then(res => {
              if (res.data.vault_update_result === "success") {
                 window.alert("Vault saved");
+            } else if (res.data.vault_update_result === "Invalid token") {
+                window.alert("Invalid token");
+                logout()     
              } else {
                 window.alert(res.data.vault_update_result);
              }
         })
     }
 
-    const [content, setContent] = useState(< VaultList vaultDecrypted={vaultDecrypted} showForm={showForm} editItem={editItem} deleteItem={deleteItem} />)
-    
-    return (
-        <div className="container my-5">
-            { content }
-        </div>
-    )
+    const [content, setContent] = useState(< VaultList vaultDecrypted={vaultDecrypted} showForm={showForm} editItem={editItem} deleteItem={deleteItem} togglePW={togglePW} />)
+  
+    if (!vaultExists) {
+        return (<div></div>)
+    } else {
+        return (           
+            <div className="container my-5">
+                { content }
+            </div>
+        )
+    }   
 }
 
 const VaultList = (props) => {
@@ -83,8 +116,8 @@ const VaultList = (props) => {
         <>
         <div className="container-md">     
         <div className="text-left button-padding-left">
-        <button onClick={() => props.showForm({}) } type="button" className="btn btn-success btn-lg me-2">Create Item</button>
-        <button onClick={() => props.saveVault({}) } type="button" className="btn btn-success btn-lg me-2">Save Vault</button>
+        <button onClick={() => props.showForm({}) } type="button" className="btn btn-success btn-lg me-2" title="Create Item"> <AddIcon /></button>
+        <button onClick={() => props.saveVault({}) } type="button" className="btn btn-primary btn-lg me-2" title="Save Vault"> <SaveIcon /></button>
         </div>
   
         <table className="table table-striped text-left w-75">
@@ -104,11 +137,14 @@ const VaultList = (props) => {
                         <td>{item.ID}</td>
                         <td>{item.account}</td>
                         <td>{item.username}</td>
-                        <td>{item.password}</td>
+                        <td>
+                            {item.showPW ? item.password : "**************"}
+                            <button onClick= {() => props.togglePW(item)} type="button" className="btn border-0 ml-4" title={item.showPW ? 'Hide Password' : 'Show Password'}>{item.showPW ? <VisibilityOffIcon /> : <VisibilityIcon />}</button>
+                        </td>    
                         <td>{item.notes}</td>                       
-                        <td style={{width:"10px", whiteSpace:"nowrap"}}>
-                        <button onClick={() => props.showForm(item)} type="button" className="btn btn-primary btn-lg me-2">Edit</button>
-                        <button onClick= {() => props.deleteItem(index)} type="button" className="btn btn-danger btn-lg">Delete</button>
+                        <td style={{width:"10px", whiteSpace:"nowrap"}}>                        
+                        <button onClick={() => props.showForm(item)} type="button" className="btn btn-warning btn-lg mx-2" title="Edit account"> <EditIcon/> </button>
+                        <button onClick= {() => props.deleteItem(index)} type="button" className="btn btn-danger btn-lg" title="Delete account"> <DeleteIcon/> </button>
                         </td>                                                                         
                     </tr>
                 })
@@ -203,8 +239,8 @@ const VaultForm = (props) => {
         </div>
 
         <div>
-        <button type="submit" className="btn btn-primary btn-lg me-2">Save</button>
-        <button onClick={() => props.showList()} type="button" className="btn btn-secondary btn-lg">Cancel</button>
+        <button type="submit" className="btn btn-primary btn-lg me-4" title="Save"><SaveIcon/> </button>
+        <button onClick={() => props.showList()} type="button" className="btn btn-dark btn-lg" title="Cancel"><CancelIcon /></button>
         </div>
         </form>
     </div> 

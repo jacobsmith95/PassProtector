@@ -11,12 +11,32 @@
   float: none;
 }
 
+.topHeader {
+  background-color: white;
+  text-align: center;
+  font-family: sans-serif;
+  font-size: 1.2em;
+  padding: 0px;
+  margin: 10px 0px 10px 0px;
+  font-weight: bold;
+  color: black;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center; 
+}
+
+.vaultIcon {
+  /* font-size: 1.5em; */
+  transform: scale(1.5);
+}
+
 .links {
   background-color: black;
   text-align: center;
   font-family: sans-serif;
   padding: 15px;
-  margin: 0px 0px 30px 0px;
+  margin: 0px 0px 0px 0px;
   font-weight: bold;
   color: white;
   display: flex;
@@ -31,7 +51,8 @@
 }
 
 .linkItemActive a {
-  color: rgb(248, 248, 147);
+  color: rgb(206, 205, 205);
+  /* color: rgb(248, 248, 147);   */
   margin: 0 20px;
   text-decoration: none;
 }
@@ -56,7 +77,7 @@
 }
 
 .page {
-  padding: 30px;
+  padding: 0%;
   font-family: sans-serif;
 }
 
@@ -77,4 +98,11 @@
 
 .button-padding-left {
   padding: 0 0 10px 13%
+}
+
+.hr-len {
+  border: 1px solid;
+  color: black;
+  width: 50%;
+  margin: auto;
 }

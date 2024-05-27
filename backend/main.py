@@ -22,7 +22,7 @@ origins = [
 ]
 
 
-# creating TokenAuthenticator objects
+# create TokenAuthenticator objects
 
 tokens = TokenAuthenticator()
 

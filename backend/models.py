@@ -79,13 +79,6 @@ class MFACreateSchema(BaseModel):
     code: str = Field(...)
 
 
-class DeleteSchema(BaseModel):
-    """
-    Allows functions to parse request bodies that only include a hash
-    """
-    hash: str = Field(...)
-
-
 # Successful Response Schemas
 
 def LoginResponseSchema(token):

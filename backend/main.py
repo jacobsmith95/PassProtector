@@ -248,7 +248,7 @@ async def vault_update(vault_data: VaultSchema = Body (...)):
 
 
 @app.post(path="/account-delete/", status_code=status.HTTP_200_OK)
-async def user_delete(delete_data: DeleteSchema = Body(...)):
+async def user_delete(delete_data: TokenSchema = Body(...)):
     """
     This is the account delete route
     It receives a master hash and a session token from the frontend
@@ -259,14 +259,19 @@ async def user_delete(delete_data: DeleteSchema = Body(...)):
     """
     delete_json = jsonable_encoder(delete_data)
     hash = delete_json["hash"]
-    result = await delete_user(hash)
-    if result == "failure to find user":
-        return DeleteErrorSchema("Failure to Find User")
-    if result == "failure to delete user":
-        return DeleteErrorSchema("Failure to Delete User")
-    elif result == "success":
-        return DeleteResponseSchema()
-    
+    token = delete_json["token"]
+    token_ver = await tokens.verify_token(hash, token)
+    if token_ver != "success":
+        return DeleteErrorSchema("Invalid token")
+    if token_ver == "success":
+        result = await delete_user(hash)
+        if result == "failure to find user":
+            return DeleteErrorSchema("Failure to Find User")
+        if result == "failure to delete user":
+            return DeleteErrorSchema("Failure to Delete User")
+        elif result == "success":
+            return DeleteResponseSchema()
+
 
 @app.post(path="/logout/", status_code=status.HTTP_200_OK)
 async def logout(logout_data: TokenSchema = Body(...)):

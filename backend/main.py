@@ -117,7 +117,7 @@ async def get_vault(get_data: TokenSchema = Body(...)):
     token_ver = await tokens.verify_token(hash, token)
     if token_ver != "success":
         return GetVaultErrorSchema("Invalid token")
-    if token_ver == "success":
+    elif token_ver == "success":
         result = await auth_user(hash)
         if result == "success":
             update_time = await tokens.update_time(hash)
@@ -145,11 +145,12 @@ async def create_user(user: UserSchema = Body(...)):
     result = await add_user(new_user)
     if result == "failure":
         return CreateErrorSchema("Account Creation Failed")
-    mfa_result = await mfa_user(new_user["email"])
-    if mfa_result == "failure":
-        return CreateErrorSchema("Account Creation Failed")
-    else:
-        return CreateResponseSchema(mfa_result)
+    elif result == "success":
+        mfa_result = await mfa_user(new_user["email"])
+        if mfa_result == "failure":
+            return CreateErrorSchema("Account Creation Failed")
+        else:
+            return CreateResponseSchema(mfa_result)
     
 
 @app.post(path="/auth-create/", status_code=status.HTTP_200_OK)
@@ -185,30 +186,30 @@ async def user_update(user_data: UserUpdate = Body (...)):
     user_json = jsonable_encoder(user_data)
     email = user_json["email"]
     new_hash = user_json["hash"]
+    token = user_json["token"]
     user = await find_user_by_email(email)
     if user == "failure":
         return UpdateErrorSchema("Invalid token")
     old_hash = user["hash"]
-    token = user_json["token"]
     token_ver = await tokens.verify_token(old_hash, token)
-    if token_ver != "success":
+    if token_ver == "failure":
         return UpdateErrorSchema("Invalid token")
-    if new_hash != old_hash:
-        token_dict = await tokens.get_token_dict(old_hash)
-        if token_dict == "failure":
-            return UpdateErrorSchema("Invalid token")
-        else:
-            token_add = await tokens.add_token(new_hash, token_dict)
-            if token_add == "failure":
+    elif token_ver == "success":
+        if new_hash != old_hash:
+            token_dict = await tokens.get_token_dict(old_hash)
+            if token_dict == "failure":
                 return UpdateErrorSchema("Invalid token")
             else:
-                token_rem = await tokens.remove_token(old_hash)
-                if token_rem == "failure":
+                token_add = await tokens.add_token(new_hash, token_dict)
+                if token_add != "success":
                     return UpdateErrorSchema("Invalid token")
-    if token_ver == "success":
+                else:
+                    token_rem = await tokens.remove_token(old_hash)
+                    if token_rem != "success":
+                        return UpdateErrorSchema("Invalid token")
         update_time = await tokens.update_time(new_hash)
         if update_time == "failure":
-            return "failure"
+            return UpdateErrorSchema("Failure")
         result = await update_user(user_json)
         if result != "success":
             return UpdateErrorSchema("Failure")
@@ -232,9 +233,9 @@ async def vault_update(vault_data: VaultSchema = Body (...)):
     vault = vault_json["vault"]
     token = vault_json["token"]
     token_ver = await tokens.verify_token(hash, token)
-    if token_ver != "success":
+    if token_ver == "failure":
         return VaultErrorSchema("Invalid token")
-    if token_ver == "success":
+    elif token_ver == "success":
         update_time = await tokens.update_time(hash)
         if update_time == "failure":
             return "failure"
@@ -261,9 +262,9 @@ async def user_delete(delete_data: TokenSchema = Body(...)):
     hash = delete_json["hash"]
     token = delete_json["token"]
     token_ver = await tokens.verify_token(hash, token)
-    if token_ver != "success":
+    if token_ver == "failure":
         return DeleteErrorSchema("Invalid token")
-    if token_ver == "success":
+    elif token_ver == "success":
         result = await delete_user(hash)
         if result == "failure to find user":
             return DeleteErrorSchema("Failure to Find User")
@@ -287,21 +288,22 @@ async def logout(logout_data: TokenSchema = Body(...)):
     hash = logout_json["hash"]
     token = logout_json["token"]
     token_ver = await tokens.verify_token(hash, token)
-    if token_ver != "success":
+    if token_ver == "failure":
         token_remove = await tokens.remove_token(hash)
         if token_remove != "success":
             return LogoutErrorSchema("Invalid token")
         else:
             return LogoutErrorSchema("Invalid token")
-    result = await auth_user(hash)
-    if result == "success":
-        token_rem = await tokens.remove_token(hash)
-        if token_rem == "failure":
-            return LogoutErrorSchema("Logout Failed")
+    elif token_ver == "success":
+        result = await auth_user(hash)
+        if result == "success":
+            token_rem = await tokens.remove_token(hash)
+            if token_rem == "failure":
+                return LogoutErrorSchema("Logout Failed")
+            else:
+                return LogoutResponseSchema()
         else:
-            return LogoutResponseSchema()
-    else:
-        return LogoutErrorSchema("Logout Failed")
+            return LogoutErrorSchema("Logout Failed")
     
 
 # token functions

@@ -12,11 +12,19 @@ async def check_time_thread(tokens: TokenAuthenticator):
     Otherwise, the function passes
     """
     while True:
-        sleep(10)
+        sleep(5)
         data = await tokens.get_data()
+        if data == {}:
+            pass
+        timeout_list = []
         for key in data:
             check_time = await tokens.check_time(key)
             if check_time is True:
-                remove_token = await tokens.remove_token(key)
+                timeout_list.append(key)
+        if timeout_list != []:
+            for hash in timeout_list:
+                remove_token = await tokens.remove_token(hash)
                 if remove_token != "success":
+                    pass
+                else:
                     pass

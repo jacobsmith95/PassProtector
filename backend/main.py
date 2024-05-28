@@ -65,7 +65,7 @@ async def login(hash: HashSchema = Body(...)):
             return LoginErrorSchema("Login Failed")
     else:
         return LoginErrorSchema("Login Failed")
-    
+
 
 @app.post(path="/mfa-login/", status_code=status.HTTP_200_OK)
 async def mfa_login(mfa: MFASchema = Body(...)):
@@ -98,7 +98,7 @@ async def mfa_login(mfa: MFASchema = Body(...)):
                 return MFAResponseSchema()
     else:
         return MFAErrorSchema("MFA code is incorrect")
-    
+
 
 @app.post(path="/get-vault/", status_code=status.HTTP_200_OK)
 async def get_vault(get_data: TokenSchema = Body(...)):
@@ -136,8 +136,7 @@ async def create_user(user: UserSchema = Body(...)):
     """
     This is the 1st of 2 account creation routes
     It receives an email, master hash, mfa token, and vault from the frontend
-    It first verifies that the user's email has not been used before
-    If it hasn't, a user entry is created on the user database with the above entries
+    A user entry is created on the user database with the above entries
     A new mfa URL is created by the backend and returned to the frontend
     This function returns CreateResponseSchema or CreateErrorSchema
     """
@@ -151,7 +150,7 @@ async def create_user(user: UserSchema = Body(...)):
             return CreateErrorSchema("Account Creation Failed")
         else:
             return CreateResponseSchema(mfa_result)
-    
+
 
 @app.post(path="/auth-create/", status_code=status.HTTP_200_OK)
 async def auth_create(mfa_schema: MFACreateSchema = Body(...)):
@@ -242,7 +241,7 @@ async def vault_update(vault_data: VaultSchema = Body (...)):
         result = await update_vault(hash, vault)
         if result == "failure to update vault":
             return VaultErrorSchema("Failure to Update Vault")
-        if result == "failure to find user":
+        elif result == "failure to find user":
             return VaultErrorSchema("Failure")
         elif result == "success":
             return VaultResponseSchema()

@@ -44,22 +44,22 @@ class TokenAuthenticator():
             if hash not in self.data:
                 return "failure"
             token_dict = self.data[f"{hash}"]
-            if token == token_dict["token"]:
-                return "success"
-            else:
-                return "failure"
+        if token == token_dict["token"]:
+            return "success"
+        else:
+            return "failure"
             
     async def check_time(self, hash):
         """checks the elapsed time on the token for a hash if a lock is acquired"""
         with self._lock:
             if hash not in self.data:
-                return "failure"
+                return False
             token_dict = self.data[f"{hash}"]
             token_time = token_dict["time"]
-            if (time.time() - token_time) >= 300.0:
-                return True
-            else:
-                return False
+        if (time.time() - token_time) >= 300.0:
+            return True
+        else:
+            return False
             
     async def update_time(self, hash):
         """updates the token time for a hash if a lock is acquired"""

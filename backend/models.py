@@ -3,7 +3,7 @@ from typing import Optional
 import uuid
 
 
-# Payload Schemas
+# Request Schemas
 
 class UserSchema(BaseModel):
     """

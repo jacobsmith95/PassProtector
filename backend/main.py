@@ -17,7 +17,7 @@ app = FastAPI()
 
 
 origins = [
-    # "https://frontend-ngnhr6tt3a-ul.a.run.app/"
+    # "https://frontend-ngnhr6tt3a-ul.a.run.app"
     "http://localhost:3000"
 ]
 

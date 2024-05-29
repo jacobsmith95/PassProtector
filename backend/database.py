@@ -5,7 +5,7 @@ import json
 
 # MongoDB connection string goes here
 
-db_details = "mongodb+srv://backend_server:x9cA3yHfnVGCbl2Q@scmcluster.0yumvz4.mongodb.net/?retryWrites=true&w=majority&appName=SCMCluster"
+db_details = "mongodb+srv://<username>:<password>@scmcluster.0yumvz4.mongodb.net/?retryWrites=true&w=majority&appName=SCMCluster"
 
 
 # use async Motor to create a MongoDB client with the above credentials

@@ -1,53 +1,112 @@
 body {
-  margin: 0px;
+    margin: 0px;
 }
 
 .App {
-  color: white;
-  text-align: center;
+    color: white;
+    text-align: center;
 }
 
 .container {
-  width: 20rem;
-  height: 30rem;
-  background-color: white;
+    width: 20rem;
+    height: 30rem;
+    background-color: white;
 }
 
-.navigation-bar {
-  height: 50px;
-  width: 100%;
-  background-color: black;
-  display: inline-flex;
-  justify-content: space-evenly;
-  align-items: center;
+.navigation-bar, .title-bar {
+    height: 50px;
+    width: 100%;
+    background-color: black;
+    display: inline-flex;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+.title-bar {
+    color: white;
+    font-size: larger;
 }
 
 .nav-link {
-  padding: auto;
-  text-decoration: none;
-  font-size: larger;
-  color: white;
+    padding: auto;
+    text-decoration: none;
+    font-size: larger;
+    color: white;
 }
 .nav-link:hover {
-  color: lightgoldenrodyellow;
+    color: lightgoldenrodyellow;
 }
 
-.vault-container {
-  padding: 5px;
-  
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
+.screen-container {
+    padding: 5px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.login-element {
+    height: 30px;
+}
+
+.input-alert {
+    color: red;
 }
 
 .vault-item {
-  height: 40px;
-  padding: 0px 10px;
+    height: 40px;
+    padding: 0px 15px;
 
-  background-color: #e2e3e5;
-  color: black;
-  
-  display: inline-flex;
-  justify-content: space-between;
-  align-items: center;
+    background-color: #e2e3e5;
+    color: black;
+
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 0px 15px;
+}
+
+#item-name {
+    flex-grow: 1;
+    text-align: left;
+    height: 40px;
+    line-height: 40px;
+}
+
+#dropdown-icon {
+    font-size: larger;
+    height: 40px;
+    line-height: 40px;
+}
+#dropdown-icon:hover {
+    cursor: pointer;
+}
+
+.vault-extra-info {
+    background-color: #cecece;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+}
+
+.extra-info-container {
+    color: black;
+    font-size: larger;
+    text-align: left;
+    padding: 5px;
+}
+
+.extra-info-label {
+    color: rgb(86, 86, 86);
+    font-size: smaller;
+    margin: 0px;
+}
+
+.password-field-container {
+    display: flex;
+    gap: 5px;
+}
+.password-field-container > .password {
+    flex-grow: 1;
 }

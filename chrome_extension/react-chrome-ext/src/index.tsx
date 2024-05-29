@@ -7,7 +7,7 @@ root.className = "container"
 document.body.appendChild(root)
 const rootDiv = ReactDOM.createRoot(root);
 rootDiv.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
+    <React.StrictMode>
+        <App />
+    </React.StrictMode>
 );

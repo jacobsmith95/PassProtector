@@ -1,13 +1,10 @@
-import React from "react";
 import Nav from 'react-bootstrap/Nav';
-import Navbar from 'react-bootstrap/Navbar';
+import { Link } from 'react-router-dom';
 
 function NavBar() {
     return (
         <Nav className="navigation-bar">
-            <Nav.Link className="nav-link" href="#vault">Vault</Nav.Link>
-            <Nav.Link className="nav-link" href="#generator">Generator</Nav.Link>
-            <Nav.Link className="nav-link" href="#log-out">Log Out</Nav.Link>
+            <Link className="nav-link" to="/login">Log Out</Link>
         </Nav>
     );
 }

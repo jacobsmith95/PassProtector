@@ -3,7 +3,7 @@ from typing import Optional
 import uuid
 
 
-# Payload Schemas
+# Request Schemas
 
 class UserSchema(BaseModel):
     """
@@ -11,6 +11,7 @@ class UserSchema(BaseModel):
 
     email - user's email entered on account creation saved as a string
     hash  - user's unique master hash generated on account creation saved as a string
+    token - a placeholder value for the multi-factor authentication in 
     """
     email: str = Field(...)
     hash: str = Field(...)
@@ -24,10 +25,6 @@ class UserSchema(BaseModel):
 class UserUpdate(BaseModel):
     """
     The model for updating a user in the mongodb Users collection:
-    
-    email - 
-    hash  - 
-    token - 
     """
     email: str = Field(...)
     hash: str = Field(...)
@@ -43,7 +40,7 @@ class HashSchema(BaseModel):
 
 class TokenSchema(BaseModel):
     """
-    Allows functions to parse request bodies that only include a vault
+    Allows functions to parse request bodies that include a hash and a session token
     """
     hash: str = Field(...)
     token: str = Field(...)
@@ -51,14 +48,14 @@ class TokenSchema(BaseModel):
 
 class EmailSchema(BaseModel):
     """
-    Allows functions to parse request bodies that only include a hash
+    Allows functions to parse request bodies that only include an email
     """
     email: str = Field(...)
 
 
 class VaultSchema(BaseModel):
     """
-    Allows functions to parse request bodies that only include a vault
+    Allows functions to parse request bodies that include a hash, vault, and session token
     """
     hash: str = Field(...)
     vault: dict = Field(...)
@@ -67,7 +64,7 @@ class VaultSchema(BaseModel):
 
 class MFASchema(BaseModel):
     """
-    Allows functions to parse request bodies that only include a hash
+    Allows functions to parse request bodies that include a hash, mfa code, and session token
     """
     hash: str = Field(...)
     code: str = Field(...)
@@ -76,17 +73,10 @@ class MFASchema(BaseModel):
 
 class MFACreateSchema(BaseModel):
     """
-    Allows functions to parse request bodies that only include a hash
+    Allows functions to parse request bodies that include a hash and an mfa code
     """
     hash: str = Field(...)
     code: str = Field(...)
-
-
-class DeleteSchema(BaseModel):
-    """
-    Allows functions to parse request bodies that only include a vault
-    """
-    hash: str = Field(...)
 
 
 # Successful Response Schemas
@@ -158,7 +148,6 @@ def MFAResponseSchema():
     Defines the dictionary reponse sent back as the response body for routes:
 
     account_auth_result - whether the operation resulted in success or not
-    token               - the user's authentication token
     """
     mfa_response = {
         "account_auth_result" : "success",

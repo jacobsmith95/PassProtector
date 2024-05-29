@@ -1,17 +1,18 @@
 from backend_mfa import createAuthenticator, verify
-from token_authentication import TokenAuthenticator
 import motor.motor_asyncio
 import json
 
 
-db_details = "mongodb+srv://backend_server:x9cA3yHfnVGCbl2Q@scmcluster.0yumvz4.mongodb.net/?retryWrites=true&w=majority&appName=SCMCluster"
+# MongoDB connection string goes here
+
+db_details = "mongodb+srv://<username>:<password>@scmcluster.0yumvz4.mongodb.net/?retryWrites=true&w=majority&appName=SCMCluster"
+
+
+# use async Motor to create a MongoDB client with the above credentials
 
 client = motor.motor_asyncio.AsyncIOMotorClient(db_details)
 database = client["UserDatabase"]
 collection = database["Users"]
-
-
-tokens = TokenAuthenticator()
 
 
 #Helper Functions:
@@ -31,41 +32,11 @@ def user_helper(user) -> dict:
     return dict
 
 
-#def create_helper(user) -> dict:
-#    """
-#    takes a user returned from the database and returns a dict object
-#    """
-#    dict = {
-#    "id"    : str(user["_id"]),
-#    "email" : user["email"],
-#    "hash"  : user["hash"],
-#    }
-#
-#    return dict
-
-
-def update_helper(data) -> dict:
-    """
-    
-    """
-    dict = {
-        "email": data["email"]
-    }
-    if data["hash"] != "None":
-        dict["hash"] = data["hash"]
-    if "token" in data:
-        dict["token"] = data["token"]
-    
-    return dict
-
-
-
-
 #Database CRUD Functions
 
 async def add_user(user_data: dict):
     """
-    
+    This function adds a new user to the database collection "Users"
     """
     check = await collection.find_one({"email": user_data["email"]})
     if check is not None:
@@ -87,7 +58,7 @@ async def add_user(user_data: dict):
 
 async def mfa_user(email: str):
     """
-    
+    This function creates a new MFA authenticator url for a user, updates the user's "token" entry, and returns the url
     """
     user = await collection.find_one({"email": email})
     if user is None:
@@ -104,7 +75,7 @@ async def mfa_user(email: str):
 
 async def find_user(hash: str):
     """
-    
+    This function finds a user with the given hash, it returns the user dict
     """
     user = await collection.find_one({"hash": hash})
     if user is None:
@@ -114,7 +85,7 @@ async def find_user(hash: str):
     
 async def find_user_by_email(email: str):
     """
-    
+    This function finds a user with the given email, it returns the user dict
     """
     user = await collection.find_one({"email": email})
     if user is None:
@@ -125,7 +96,7 @@ async def find_user_by_email(email: str):
 
 async def auth_user(hash: str):
     """
-    
+    This function checks to see if the given hash is in the "Users" database collection
     """
     user = await collection.find_one({"hash": hash})
     if user is not None:
@@ -135,7 +106,7 @@ async def auth_user(hash: str):
 
 async def mfa_verify(hash: str, mfa_code: str):
     """
-    
+    This function checks to see if the given hash and the given MFA code are valid
     """
     user = await collection.find_one({"hash": hash})
     if user is None:
@@ -151,7 +122,7 @@ async def mfa_verify(hash: str, mfa_code: str):
 
 async def find_vault(hash: str):
     """
-    
+    This function retrieves and returns the given hash's encrypted vault
     """
     user = await collection.find_one({"hash": hash})
     if user is None:
@@ -164,7 +135,7 @@ async def find_vault(hash: str):
 
 async def update_user(new_data: dict):
     """
-    
+    This function updates the given user's hash in the "Users" database collection
     """
     if len(new_data) < 2:
         return "failure"
@@ -181,7 +152,7 @@ async def update_user(new_data: dict):
 
 async def update_vault(hash: str, new_vault: dict):
     """
-    
+    This function updates the given user's vault in the "Users" database collection
     """
     user = await collection.find_one({"hash": hash})
     vault = json.dumps(new_vault)
@@ -196,7 +167,7 @@ async def update_vault(hash: str, new_vault: dict):
 
 async def delete_user(hash: str):
     """
-    
+    This function deletes the user associated with the given hash from the "Users" database collection
     """
     user = await collection.find_one({"hash": hash})
     if user is not None:

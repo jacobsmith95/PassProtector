@@ -1,3 +1,8 @@
+/*
+Notes:
+- Consider changing to something that could be easier to remember. 
+*/
+
 export const GeneratePW = () => {
 
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!#$%&'()*+,-./:;<=>?@[]^_`{|}~";

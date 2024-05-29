@@ -10,33 +10,44 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 
+/*
+Notes:
+- Only the password can be changed.
+- If the token is invalid, logout the user without saving any proposed changes. 
+*/
+
 export const Settings = () => {
 
-    const { email, password, token, setPassword, masterHash, setMasterHash, setMasterKey, user, setUser, logout} = AuthObject()
+    const { email, password, token, setPassword, masterHash, setMasterHash, setMasterKey, user, setUser, logoutInvalidToken} = AuthObject()
 
     const [showPW, setShowPW] = useState(false)
 
+    // Set showPW to the opposite of it's current value. 
     const togglePW = () => {
         setShowPW(!showPW);
     };
 
     const editAccount = (user) => {
 
+        if (!user.password) {
+            window.alert("Please enter a password.")
+            return
+        }
+
         const masterValues = generateMasterKey(email, user.password)
-        setMasterKey(masterValues.masterKey)
-        setMasterHash(masterValues.masterHash)
-        const masterHashNew = masterValues.masterHash
     
-        axios.post(`${deployTarget}/account-update/`, {'email': user.email, 'hash': masterHashNew, 'token': token}, axiosConfigPost)
+        axios.post(`${deployTarget}/account-update/`, {'email': user.email, 'hash': masterValues.masterHash, 'token': token}, axiosConfigPost)
         .then(res => {
              if (res.data.account_update_result === "success") {
                 setPassword(user.password)
+                setMasterKey(masterValues.masterKey)
+                setMasterHash(masterValues.masterHash)                
                 window.alert("Account updated");
              } else if (res.data.account_update_result === "Invalid token") {
-                window.alert("Invalid token");
-                logout() 
+                window.alert("User session timed-out");
+                logoutInvalidToken() 
              } else {
-                window.alert("Error, Account not updated");
+                window.alert(res.data.account_update_result);
              }
         })
 
@@ -47,18 +58,21 @@ export const Settings = () => {
     }, [password, showPW])
 
     const deleteUser = () => {
-
-        axios.post(`${deployTarget}/account-delete/`, {'hash': masterHash}, axiosConfigPost)
+        axios.post(`${deployTarget}/account-delete/`, {'hash': masterHash, 'token': token}, axiosConfigPost)
         .then(res => {
              if (res.data.account_delete_result === "success") {
                 window.alert("Account deleted");
                 setUser({...user, isAuthenticated: false})
+            } else if (res.data.account_delete_result === "Invalid token") {
+                window.alert("User session timed-out");
+                logoutInvalidToken() 
              } else {
-                window.alert("Error, Account not deleted");
+                window.alert(res.data.account_update_result);
              }
         })
     }
 
+    // Dynamically render the content of either UserData or UserForm based on user selections. 
     const showList = () => {
         setContent(< UserData email={email} password={password} showForm={showForm} editAccount={editAccount} deleteUser={deleteUser} showPW={showPW} togglePW={togglePW} />)
     }
@@ -67,6 +81,7 @@ export const Settings = () => {
         setContent(< UserForm email={email} password={password} showList={showList} editAccount={editAccount}/>)
     }
     
+    // UserData is default.
     const [content, setContent] = useState(< UserData email={email} password={password} showForm={showForm} editAccount={editAccount} deleteUser={deleteUser} />)
     
     return (
@@ -130,9 +145,9 @@ const UserForm = (props) => {
     <form onSubmit={(event) => handleSubmit(event, props)}>
 
         <div className="row mb-3">
-            <label className="col-sm-4 col-form-label">Email</label>
-            <div className="col-sm-8">
-            <input className="form-control"
+            <label className="col-sm-4 text-right">Email:</label>
+            <div className="col-sm-6">
+            <input readOnly className="form-control"
                 name = "email"
                 defaultValue = {props.email}
             ></input>
@@ -140,8 +155,8 @@ const UserForm = (props) => {
         </div>
 
         <div className="row mb-3">
-            <label className="col-sm-4 col-form-label">Password</label>
-            <div className="col-sm-8">
+            <label className="col-sm-4 text-right">Password:</label>
+            <div className="col-sm-6">
             <input className="form-control"
                 name = "password"
                 defaultValue={props.password}
@@ -150,11 +165,14 @@ const UserForm = (props) => {
         </div>
 
         <div>
-        <button type="submit" className="btn btn-primary btn-lg me-4" title="Save"><SaveIcon/> </button>
-        <button onClick={() => props.showList()} type="button" className="btn btn-dark btn-lg" title="Cancel"><CancelIcon /></button>
+        <button type="submit" className="btn btn-primary btn-lg me-4 mt-4" title="Save"><SaveIcon/> </button>
+        <button onClick={() => props.showList()} type="button" className="btn btn-dark btn-lg mt-4" title="Cancel"><CancelIcon /></button>
         </div>
         </form>
-    </div> 
+        <div className="container w-75 fs-5 mt-5">
+            <div className="text-left">- Users can only change their password (not their email) at this time.</div>
+        </div>
+    </div>
     </div>
     </>
     )

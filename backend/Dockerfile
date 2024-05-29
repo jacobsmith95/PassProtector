@@ -11,6 +11,8 @@ COPY ./models.py /code/
 COPY ./backend_encryption.py /code/
 COPY ./database.py /code/
 COPY ./backend_mfa.py /code/
+COPY ./token_authentication.py /code/
+COPY ./token_threads.py /code/
 
 EXPOSE 8080
 
